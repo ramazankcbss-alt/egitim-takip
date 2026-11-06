@@ -1,0 +1,332 @@
+import 'package:flutter/material.dart';
+
+import '../models.dart';
+import '../services/db.dart';
+import '../widgets/common.dart';
+import 'student_screen.dart';
+
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key, required this.me});
+
+  final AppUser me;
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  late Stream<List<Student>> _stream;
+
+  @override
+  void initState() {
+    super.initState();
+    _stream = Db.myStudents(widget.me);
+  }
+
+  @override
+  void didUpdateWidget(HomeScreen old) {
+    super.didUpdateWidget(old);
+    if (old.me.uid != widget.me.uid || old.me.role != widget.me.role) {
+      _stream = Db.myStudents(widget.me);
+    }
+  }
+
+  AppUser get me => widget.me;
+
+  String get _title => switch (me.role) {
+        UserRole.parent => 'Çocuklarım',
+        UserRole.teacher => 'Öğrencilerim',
+        UserRole.student => 'Eğitim Takip',
+      };
+
+  String get _emptyText => switch (me.role) {
+        UserRole.parent =>
+          'Henüz öğrenci eklemediniz.\nAşağıdaki "Öğrenci Ekle" butonuyla çocuğunuzu ekleyin.\n\n'
+              'Eşiniz çocuğu zaten eklediyse, onun paylaştığı "Veli kodu" ile sağ üstteki anahtar simgesinden katılabilirsiniz.',
+        UserRole.teacher =>
+          'Henüz öğrenciniz yok.\nVelinin paylaştığı davet koduyla "Kodla Katıl" butonuna basın.',
+        UserRole.student =>
+          'Velinden davet kodunu iste ve "Kodla Katıl" butonuna basarak yaz.',
+      };
+
+  void _openStudent(Student s) {
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => StudentScreen(studentId: s.id, me: me),
+    ));
+  }
+
+  Future<void> _addStudent() async {
+    await showDialog<void>(
+      context: context,
+      builder: (_) => _AddStudentDialog(me: me),
+    );
+  }
+
+  Future<void> _join() async {
+    await showDialog<void>(
+      context: context,
+      builder: (_) => _JoinDialog(me: me),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<List<Student>>(
+      stream: _stream,
+      builder: (context, snap) {
+        final list = snap.data ?? const <Student>[];
+        final loading =
+            snap.connectionState == ConnectionState.waiting && !snap.hasData;
+
+        // Öğrenci hesabı tek bir öğrenciye bağlıysa doğrudan kendi sayfası açılır.
+        if (me.role == UserRole.student && list.length == 1) {
+          return StudentScreen(studentId: list.first.id, me: me, isRoot: true);
+        }
+
+        Widget body;
+        if (loading) {
+          body = const Loading();
+        } else if (snap.hasError) {
+          body = EmptyState(
+              icon: Icons.error_outline, text: errorText(snap.error!));
+        } else if (list.isEmpty) {
+          body = EmptyState(icon: Icons.groups_outlined, text: _emptyText);
+        } else {
+          body = ListView(
+            padding: const EdgeInsets.fromLTRB(12, 12, 12, 96),
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(4, 4, 4, 12),
+                child: Text('Merhaba ${me.name} 👋',
+                    style: Theme.of(context).textTheme.titleLarge),
+              ),
+              ...list.map((s) => _StudentCard(
+                    student: s,
+                    onTap: () => _openStudent(s),
+                  )),
+            ],
+          );
+        }
+
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(_title),
+            actions: [
+              if (me.role == UserRole.parent)
+                IconButton(
+                  tooltip: 'Davet koduyla katıl',
+                  icon: const Icon(Icons.vpn_key_outlined),
+                  onPressed: _join,
+                ),
+              const LogoutButton(),
+            ],
+          ),
+          body: body,
+          floatingActionButton: me.role == UserRole.parent
+              ? FloatingActionButton.extended(
+                  heroTag: 'home_fab',
+                  onPressed: _addStudent,
+                  icon: const Icon(Icons.person_add_alt_1),
+                  label: const Text('Öğrenci Ekle'),
+                )
+              : FloatingActionButton.extended(
+                  heroTag: 'home_fab',
+                  onPressed: _join,
+                  icon: const Icon(Icons.vpn_key_outlined),
+                  label: const Text('Kodla Katıl'),
+                ),
+        );
+      },
+    );
+  }
+}
+
+class _StudentCard extends StatelessWidget {
+  const _StudentCard({required this.student, required this.onTap});
+
+  final Student student;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Card(
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        onTap: onTap,
+        leading: CircleAvatar(
+          radius: 24,
+          backgroundColor: cs.primaryContainer,
+          child: Text(
+            student.name.isEmpty ? '?' : student.name[0].toUpperCase(),
+            style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: cs.onPrimaryContainer),
+          ),
+        ),
+        title: Text(student.name,
+            style: const TextStyle(fontWeight: FontWeight.w600)),
+        subtitle: StreamBuilder<int>(
+          stream: Db.pendingHomeworkCount(student.id),
+          builder: (context, snap) {
+            final n = snap.data;
+            final hw = n == null
+                ? ''
+                : (n == 0 ? ' • Bekleyen ödev yok' : ' • $n bekleyen ödev');
+            return Text('${student.grade}$hw');
+          },
+        ),
+        trailing: const Icon(Icons.chevron_right),
+      ),
+    );
+  }
+}
+
+class _AddStudentDialog extends StatefulWidget {
+  const _AddStudentDialog({required this.me});
+
+  final AppUser me;
+
+  @override
+  State<_AddStudentDialog> createState() => _AddStudentDialogState();
+}
+
+class _AddStudentDialogState extends State<_AddStudentDialog> {
+  final _name = TextEditingController();
+  String _grade = grades[5];
+  bool _busy = false;
+
+  @override
+  void dispose() {
+    _name.dispose();
+    super.dispose();
+  }
+
+  Future<void> _save() async {
+    final name = _name.text.trim();
+    if (name.isEmpty) return;
+    setState(() => _busy = true);
+    final ok = await runSafe(
+      context,
+      () => Db.addStudent(widget.me, name: name, grade: _grade),
+      success: '$name eklendi. Davet kodunu öğrenci sayfasındaki kişiler simgesinden görebilirsiniz.',
+    );
+    if (!mounted) return;
+    if (ok) {
+      Navigator.pop(context);
+    } else {
+      setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Öğrenci Ekle'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextField(
+            controller: _name,
+            autofocus: true,
+            textCapitalization: TextCapitalization.words,
+            decoration: const InputDecoration(labelText: 'Adı Soyadı'),
+          ),
+          const SizedBox(height: 12),
+          DropdownButtonFormField<String>(
+            value: _grade,
+            isExpanded: true,
+            decoration: const InputDecoration(labelText: 'Sınıfı'),
+            items: grades
+                .map((g) => DropdownMenuItem(value: g, child: Text(g)))
+                .toList(),
+            onChanged: (v) => setState(() => _grade = v ?? _grade),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+            onPressed: _busy ? null : () => Navigator.pop(context),
+            child: const Text('Vazgeç')),
+        FilledButton(
+            onPressed: _busy ? null : _save, child: const Text('Ekle')),
+      ],
+    );
+  }
+}
+
+class _JoinDialog extends StatefulWidget {
+  const _JoinDialog({required this.me});
+
+  final AppUser me;
+
+  @override
+  State<_JoinDialog> createState() => _JoinDialogState();
+}
+
+class _JoinDialogState extends State<_JoinDialog> {
+  final _code = TextEditingController();
+  bool _busy = false;
+
+  @override
+  void dispose() {
+    _code.dispose();
+    super.dispose();
+  }
+
+  Future<void> _join() async {
+    setState(() => _busy = true);
+    final ok = await runSafe(
+      context,
+      () => Db.joinWithCode(widget.me, _code.text),
+      success: 'Öğrenciye bağlandınız.',
+    );
+    if (!mounted) return;
+    if (ok) {
+      Navigator.pop(context);
+    } else {
+      setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final info = switch (widget.me.role) {
+      UserRole.teacher =>
+        'Velinin size verdiği 6 haneli kodu yazın. Öğrenci listenize eklenecek.',
+      UserRole.parent =>
+        'Diğer velinin (ör. eşinizin) paylaştığı "Veli kodu"nu yazın. Çocuğu birlikte takip edebilirsiniz.',
+      UserRole.student => 'Velinden aldığın 6 haneli kodu yaz.',
+    };
+    return AlertDialog(
+      title: const Text('Davet Koduyla Katıl'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(info),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _code,
+            autofocus: true,
+            textCapitalization: TextCapitalization.characters,
+            maxLength: 6,
+            style: const TextStyle(
+                fontSize: 24, letterSpacing: 6, fontWeight: FontWeight.bold),
+            textAlign: TextAlign.center,
+            decoration: const InputDecoration(hintText: 'ABC123'),
+            onSubmitted: (_) => _join(),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+            onPressed: _busy ? null : () => Navigator.pop(context),
+            child: const Text('Vazgeç')),
+        FilledButton(
+            onPressed: _busy ? null : _join, child: const Text('Katıl')),
+      ],
+    );
+  }
+}

@@ -1,0 +1,169 @@
+rules_version = '2';
+
+// Eğitim Takip - Firestore güvenlik kuralları
+// Bir öğrencinin verisini yalnızca o öğrenciye bağlı veliler, öğretmenler
+// ve öğrencinin kendi hesabı görebilir.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function uid() { return request.auth.uid; }
+    function myRole() {
+      return get(/databases/$(database)/documents/users/$(uid())).data.role;
+    }
+    function invite(code) {
+      return get(/databases/$(database)/documents/invites/$(code)).data;
+    }
+
+    function studentData(sid) {
+      return get(/databases/$(database)/documents/students/$(sid)).data;
+    }
+    function isParentOf(sid) { return signedIn() && uid() in studentData(sid).parentIds; }
+    function isTeacherOf(sid) { return signedIn() && uid() in studentData(sid).teacherIds; }
+    function isStudentSelf(sid) { return signedIn() && studentData(sid).studentUid == uid(); }
+    function isAdultOf(sid) { return isParentOf(sid) || isTeacherOf(sid); }
+    function isMember(sid) { return isAdultOf(sid) || isStudentSelf(sid); }
+
+    function shortStr(v, max) { return v is string && v.size() <= max; }
+
+    // ---------------- Kullanıcı profilleri ----------------
+    match /users/{userId} {
+      // Tek tek okunabilir (bağlı kişilerin adını göstermek için), listelenemez.
+      allow get: if signedIn();
+      allow list: if false;
+      allow create: if signedIn() && uid() == userId
+        && request.resource.data.role in ['parent', 'student', 'teacher']
+        && shortStr(request.resource.data.name, 80);
+      // Rol sonradan değiştirilemez (yetki yükseltmeyi önler).
+      allow update: if signedIn() && uid() == userId
+        && request.resource.data.role == resource.data.role
+        && shortStr(request.resource.data.name, 80);
+      allow delete: if false;
+    }
+
+    // ---------------- Davet kodları ----------------
+    // kind: 'member' (öğretmen/öğrenci) ya da 'parent' (ikinci veli, tek kullanımlık)
+    match /invites/{code} {
+      allow get: if signedIn();
+      allow list: if false;
+      allow create: if isParentOf(request.resource.data.studentId)
+        && request.resource.data.kind in ['member', 'parent'];
+      allow delete: if isParentOf(resource.data.studentId);
+      allow update: if false;
+    }
+
+    // ---------------- Öğrenciler ----------------
+    match /students/{sid} {
+
+      function isJoin() {
+        let before = resource.data;
+        let after = request.resource.data;
+        let changed = after.diff(before).affectedKeys();
+        return (
+          (myRole() == 'teacher'
+            && after.joinCode == before.inviteCode
+            && changed.hasOnly(['teacherIds', 'joinCode'])
+            && after.teacherIds.toSet() == before.teacherIds.toSet().union([uid()].toSet()))
+          ||
+          (myRole() == 'student'
+            && after.joinCode == before.inviteCode
+            && changed.hasOnly(['studentUid', 'joinCode'])
+            && before.studentUid == null
+            && after.studentUid == uid())
+          ||
+          // Veli yalnızca, velilerin görebildiği ayrı "veli kodu" ile katılabilir.
+          (myRole() == 'parent'
+            && invite(after.joinCode).studentId == sid
+            && invite(after.joinCode).kind == 'parent'
+            && changed.hasOnly(['parentIds', 'joinCode'])
+            && after.parentIds.toSet() == before.parentIds.toSet().union([uid()].toSet()))
+        );
+      }
+
+      function isTeacherLeaving() {
+        let before = resource.data;
+        let after = request.resource.data;
+        return uid() in before.teacherIds
+          && after.diff(before).affectedKeys().hasOnly(['teacherIds'])
+          && after.teacherIds.toSet() == before.teacherIds.toSet().difference([uid()].toSet());
+      }
+
+      function validStudent(d) {
+        return shortStr(d.name, 80) && shortStr(d.grade, 40)
+          && d.parentIds is list && d.parentIds.size() >= 1 && d.parentIds.size() <= 4
+          && d.teacherIds is list && d.teacherIds.size() <= 30;
+      }
+
+      allow read: if signedIn() && (
+        uid() in resource.data.parentIds ||
+        uid() in resource.data.teacherIds ||
+        resource.data.studentUid == uid()
+      );
+
+      allow create: if signedIn()
+        && myRole() == 'parent'
+        && request.resource.data.parentIds == [uid()]
+        && request.resource.data.teacherIds.size() == 0
+        && request.resource.data.studentUid == null
+        && validStudent(request.resource.data);
+
+      allow update: if signedIn() && validStudent(request.resource.data) && (
+        uid() in resource.data.parentIds ||
+        isJoin() ||
+        isTeacherLeaving()
+      );
+
+      allow delete: if signedIn() && uid() in resource.data.parentIds;
+
+      // ---- Velilere özel: veli davet kodu ----
+      match /private/{docId} {
+        allow read, write: if isParentOf(sid);
+      }
+
+      // ---- Ödevler: öğrenci "kontrol edildi" alanlarını değiştiremez ----
+      match /homeworks/{hid} {
+        function validHw(d) {
+          return d.size() <= 20 && shortStr(d.title, 200)
+            && (!('description' in d) || shortStr(d.description, 2000))
+            && d.done is bool && d.checked is bool;
+        }
+        allow read: if isMember(sid);
+        allow create: if isMember(sid) && validHw(request.resource.data)
+          && request.resource.data.createdBy == uid()
+          && request.resource.data.checked == false;
+        allow update: if validHw(request.resource.data)
+          && request.resource.data.createdBy == resource.data.createdBy
+          && (isAdultOf(sid) || (
+            isStudentSelf(sid) &&
+            !request.resource.data.diff(resource.data).affectedKeys()
+              .hasAny(['checked', 'checkedBy', 'checkedAt'])
+          ));
+        allow delete: if isAdultOf(sid)
+          || (isStudentSelf(sid) && resource.data.createdBy == uid());
+      }
+
+      // ---- Diğer modüller: kitaplar, okuma kayıtları, test kitapları, denemeler ----
+      match /{coll}/{docId} {
+        function generic() { return !(coll in ['homeworks', 'private']); }
+        function validDoc(d) {
+          return d.size() <= 25
+            && (!('title' in d) || shortStr(d.title, 200))
+            && (!('name' in d) || shortStr(d.name, 200))
+            && (!('topics' in d) || (d.topics is list && d.topics.size() <= 300))
+            && (!('solvedPages' in d) || (d.solvedPages is list && d.solvedPages.size() <= 3000))
+            && (!('completedTopics' in d) || (d.completedTopics is list && d.completedTopics.size() <= 300));
+        }
+        allow read: if generic() && isMember(sid);
+        allow create: if generic() && isMember(sid)
+          && validDoc(request.resource.data)
+          && request.resource.data.createdBy == uid();
+        allow update: if generic() && isMember(sid)
+          && validDoc(request.resource.data)
+          && request.resource.data.createdBy == resource.data.createdBy;
+        allow delete: if generic() && (
+          isAdultOf(sid) || (isStudentSelf(sid) && resource.data.createdBy == uid())
+        );
+      }
+    }
+  }
+}
