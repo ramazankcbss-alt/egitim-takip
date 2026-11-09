@@ -222,7 +222,16 @@ class Db {
     }
 
     try {
-      await _students.doc(sid).update(data);
+      if (me.role == UserRole.parent) {
+        // Veli kodu tek kullanımlıktır: katılım ve kodun silinmesi aynı anda
+        // yapılır (Firestore kuralı bunu zorunlu tutar).
+        final batch = _fs.batch();
+        batch.update(_students.doc(sid), data);
+        batch.delete(_invites.doc(code));
+        await batch.commit();
+      } else {
+        await _students.doc(sid).update(data);
+      }
     } on FirebaseException catch (e) {
       if (e.code == 'permission-denied') {
         throw Exception(me.role == UserRole.student
@@ -232,12 +241,12 @@ class Db {
       rethrow;
     }
 
-    // Veli kodu tek kullanımlıktır: katılan veli kodu iptal edip yenisini üretir
-    // ve öğrenci kartındaki joinCode alanını temizler.
+    // Kullanılan kod silindi; katılan veli diğerleri için yeni bir veli kodu
+    // üretir ve öğrenci kartındaki joinCode alanını temizler.
     if (me.role == UserRole.parent) {
       try {
         await _students.doc(sid).update({'joinCode': FieldValue.delete()});
-        await _newParentCode(me, sid, oldCode: code);
+        await _newParentCode(me, sid);
       } catch (_) {}
     }
     return sid;

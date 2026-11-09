@@ -48,7 +48,12 @@ service cloud.firestore {
       allow list: if false;
       allow create: if isParentOf(request.resource.data.studentId)
         && request.resource.data.kind in ['member', 'parent'];
-      allow delete: if isParentOf(resource.data.studentId);
+      // DÜZELTME 1: Veli kodunu kullanarak katılan veli de, katıldığı aynı
+      // toplu yazmada (batch) daveti silebilir; böylece kod tek kullanımlık olur.
+      allow delete: if isParentOf(resource.data.studentId)
+        || (resource.data.kind == 'parent'
+            && uid() in getAfter(/databases/$(database)/documents/students/$(resource.data.studentId)).data.parentIds
+            && getAfter(/databases/$(database)/documents/students/$(resource.data.studentId)).data.joinCode == code);
       allow update: if false;
     }
 
@@ -70,7 +75,12 @@ service cloud.firestore {
           && d.updatedBy == uid();
       }
       allow read: if signedIn();
-      allow create, update: if signedIn() && validKitap(request.resource.data);
+      allow create: if signedIn() && validKitap(request.resource.data);
+      // DÜZELTME 3: Var olan bilgi değiştirilemez/silinemez; yalnızca eksik
+      // alanlar eklenebilir (anahtarlar ve updatedBy güncellenebilir).
+      allow update: if signedIn() && validKitap(request.resource.data)
+        && request.resource.data.diff(resource.data).removedKeys().size() == 0
+        && request.resource.data.diff(resource.data).changedKeys().hasOnly(['anahtarlar', 'updatedBy']);
       allow delete: if false;
     }
 
@@ -81,13 +91,18 @@ service cloud.firestore {
         let before = resource.data;
         let after = request.resource.data;
         let changed = after.diff(before).affectedKeys();
+        // DÜZELTME 2: Boş/null davet koduyla katılım engellenir.
+        let kodGecerli = before.get('inviteCode', null) is string
+          && before.inviteCode.size() >= 6;
         return (
           (myRole() == 'teacher'
+            && kodGecerli
             && after.joinCode == before.inviteCode
             && changed.hasOnly(['teacherIds', 'joinCode'])
             && after.teacherIds.toSet() == before.teacherIds.toSet().union([uid()].toSet()))
           ||
           (myRole() == 'student'
+            && kodGecerli
             && after.joinCode == before.inviteCode
             && changed.hasOnly(['studentUid', 'joinCode'])
             && before.studentUid == null
@@ -98,7 +113,9 @@ service cloud.firestore {
             && invite(after.joinCode).studentId == sid
             && invite(after.joinCode).kind == 'parent'
             && changed.hasOnly(['parentIds', 'joinCode'])
-            && after.parentIds.toSet() == before.parentIds.toSet().union([uid()].toSet()))
+            && after.parentIds.toSet() == before.parentIds.toSet().union([uid()].toSet())
+            // DÜZELTME 1: Davet aynı batch içinde silinmeli (tek kullanımlık).
+            && !existsAfter(/databases/$(database)/documents/invites/$(after.joinCode)))
         );
       }
 
@@ -162,6 +179,10 @@ service cloud.firestore {
             isStudentSelf(sid) &&
             !request.resource.data.diff(resource.data).affectedKeys()
               .hasAny(['checked', 'checkedBy', 'checkedAt'])
+            // DÜZELTME 4: Öğrenci başkasının verdiği ödevde yalnızca "yaptım" işaretler.
+            && (resource.data.createdBy == uid()
+                || request.resource.data.diff(resource.data).affectedKeys()
+                     .hasOnly(['done', 'doneAt', 'doneBy']))
           ));
         allow delete: if isAdultOf(sid)
           || (isStudentSelf(sid) && resource.data.createdBy == uid());
@@ -182,7 +203,15 @@ service cloud.firestore {
         allow create: if generic() && isMember(sid)
           && validDoc(request.resource.data)
           && request.resource.data.createdBy == uid();
-        allow update: if generic() && isMember(sid)
+        // DÜZELTME 4: Öğrenci başkasının girdiği kayıtta (ör. velinin eklediği
+        // kitap, deneme sonucu) yalnızca ilerleme alanlarını değiştirebilir.
+        allow update: if generic()
+          && (isAdultOf(sid) || (isStudentSelf(sid) && (
+                resource.data.createdBy == uid()
+                || request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+                     'currentPage', 'finished', 'updatedAt',
+                     'solvedPages', 'completedTopics', 'lastActivity'])
+             )))
           && validDoc(request.resource.data)
           && request.resource.data.createdBy == resource.data.createdBy;
         allow delete: if generic() && (
@@ -282,8 +311,10 @@ service cloud.firestore {
 
       // Katılırken girilen kod (kuralların kodu doğrulaması için).
       match /katilim/{userId} {
+        // DÜZELTME 5: Boş/kısa kodla katılım engellenir.
         allow create, update: if signedIn() && uid() == userId
-          && shortStr(request.resource.data.kod, 16);
+          && shortStr(request.resource.data.kod, 16)
+          && request.resource.data.kod.size() >= 6;
         allow read: if satisYonetici(fid);
         allow delete: if false;
       }
@@ -296,21 +327,21 @@ service cloud.firestore {
             && shortStr(d.birim, 16)
             && (!('not' in d) || shortStr(d.not, 500))
             && (!('araci' in d) || shortStr(d.araci, 80))
-            && (d.fiyat == null || (d.fiyat is number && d.fiyat >= 0))
+            && (d.get('fiyat', null) == null || (d.fiyat is number && d.fiyat >= 0))
             && d.tahsilatlar is list && d.tahsilatlar.size() <= 200;
         }
         // Saha çalışanı: kendi girdiği ya da aracı olarak bağlandığı
         // (gorenler) satışlar. Bağlamayı yalnızca ekip üyeleri değiştirir.
         allow read: if satisUye(fid)
           || (satisSaha(fid)
-              && (resource.data.olusturan == uid() || uid() in resource.data.gorenler));
+              && (resource.data.olusturan == uid() || uid() in resource.data.get('gorenler', [])));
         allow create: if (satisUye(fid)
             || (satisSaha(fid) && request.resource.data.get('gorenler', []) == []))
           && request.resource.data.olusturan == uid()
           && gecerli(request.resource.data);
         allow update: if (satisUye(fid)
             || (satisSaha(fid)
-                && (resource.data.olusturan == uid() || uid() in resource.data.gorenler)
+                && (resource.data.olusturan == uid() || uid() in resource.data.get('gorenler', []))
                 && request.resource.data.get('gorenler', []) == resource.data.get('gorenler', [])))
           && request.resource.data.olusturan == resource.data.olusturan
           && request.resource.data.no == resource.data.no
@@ -318,6 +349,25 @@ service cloud.firestore {
         allow delete: if satisYonetici(fid)
           || (satisUye(fid) && resource.data.olusturan == uid());
       }
+
+      // DÜZELTME 6: "Son hareketler" kaydı (firma altında tutuluyorsa).
+      // Kayıtlar sonradan değiştirilemez; ekip görür, ekip ve saha ekler.
+      match /satis_hareketleri/{hid} {
+        allow read: if satisUye(fid);
+        allow create: if satisUye(fid) || satisSaha(fid);
+        allow update: if false;
+        allow delete: if satisYonetici(fid);
+      }
+    }
+
+    // DÜZELTME 6: "Son hareketler" en üst seviyede tutuluyorsa
+    // (belgede firmaId alanı olmalı). Hangisini kullanıyorsan diğerini silebilirsin.
+    match /satis_hareketleri/{hid} {
+      allow read: if satisUye(resource.data.firmaId);
+      allow create: if satisUye(request.resource.data.firmaId)
+        || satisSaha(request.resource.data.firmaId);
+      allow update: if false;
+      allow delete: if satisYonetici(resource.data.firmaId);
     }
   }
 }
