@@ -1,0 +1,26 @@
+name: Kod Kontrolü
+
+# Birleştirme isteklerinde (PR) kodun derlenebildiğini kontrol eder.
+# APK üretmez, sürüm yayınlamaz.
+on:
+  pull_request:
+
+jobs:
+  kontrol:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Paketleri güncelle
+        run: flutter pub upgrade --major-versions
+
+      - name: Analiz
+        run: flutter analyze --no-fatal-infos
+
+      - name: Testler
+        run: flutter test

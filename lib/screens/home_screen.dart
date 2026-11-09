@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models.dart';
 import '../services/db.dart';
+import '../services/yedek.dart';
 import '../widgets/common.dart';
 import 'student_screen.dart';
 
@@ -69,6 +70,20 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  bool _yedekleniyor = false;
+
+  Future<void> _yedekle() async {
+    if (_yedekleniyor) return;
+    _yedekleniyor = true;
+    showInfo(context,
+        'Yedek hazırlanıyor… Açılan ekranda "Drive\'a kaydet"i seçin.');
+    try {
+      await runSafe(context, () => Yedek.yedekleVePaylas(me));
+    } finally {
+      _yedekleniyor = false;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<List<Student>>(
@@ -118,6 +133,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   icon: const Icon(Icons.vpn_key_outlined),
                   onPressed: _join,
                 ),
+              IconButton(
+                tooltip: 'Verileri yedekle (Drive)',
+                icon: const Icon(Icons.backup_outlined),
+                onPressed: _yedekle,
+              ),
               const LogoutButton(),
             ],
           ),
