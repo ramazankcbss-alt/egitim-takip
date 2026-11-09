@@ -29,16 +29,29 @@ jobs:
       - name: Android proje dosyalarını oluştur
         run: flutter create --platforms=android --org com.egitimtakip --project-name egitim_takip .
 
-      - name: Android ayarları (minSdk 23, uygulama adı, imza anahtarı)
+      - name: Android ayarları (minSdk, uygulama adı)
         run: |
           for f in android/app/build.gradle.kts android/app/build.gradle; do
-            [ -f "$f" ] && sed -i -E 's/minSdk(Version)? *=? *flutter\.minSdkVersion/minSdk = 23/' "$f"
+            [ -f "$f" ] && sed -i -E 's/minSdk(Version)? *=? *flutter\.minSdkVersion/minSdk = 24/' "$f"
           done
           sed -i -E 's/android:label="[^"]*"/android:label="Eğitim Takip"/' android/app/src/main/AndroidManifest.xml
-          # Her derlemede aynı imza kullanılsın ki güncellemeler eskisinin üzerine kurulabilsin.
-          mkdir -p ~/.android
-          cp ci/debug.keystore ~/.android/debug.keystore
           grep -n "minSdk" android/app/build.gradle* || true
+
+      # İmza anahtarı depoda şifreli durur (ci/imza.keystore.enc).
+      # Şifresi GitHub'da Settings > Secrets and variables > Actions altında
+      # EGITIM_KEYSTORE_PASSWORD adıyla kayıtlıdır. Her derleme aynı anahtarla
+      # imzalanır, böylece yeni sürümler eskisinin üzerine kurulabilir.
+      - name: İmza anahtarını hazırla
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.EGITIM_KEYSTORE_PASSWORD }}
+        run: |
+          if [ -z "$KEYSTORE_PASSWORD" ]; then
+            echo "::error::EGITIM_KEYSTORE_PASSWORD gizli ayarı eksik. Settings > Secrets and variables > Actions bölümünden ekleyin."
+            exit 1
+          fi
+          mkdir -p ~/.android
+          openssl enc -d -aes-256-cbc -pbkdf2 -in ci/imza.keystore.enc \
+            -out ~/.android/debug.keystore -pass env:KEYSTORE_PASSWORD
 
       - name: Paketleri güncelle
         run: flutter pub upgrade --major-versions
@@ -48,14 +61,16 @@ jobs:
 
       - name: APK derle
         run: |
-          flutter build apk --release
+          flutter build apk --release \
+            --build-name=2.0.${{ github.run_number }} \
+            --build-number=$((100 + ${{ github.run_number }}))
           mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/egitim-takip.apk
 
       - name: APK'yı yayınla
         uses: softprops/action-gh-release@v2
         with:
           tag_name: surum-${{ github.run_number }}
-          name: Eğitim Takip - Sürüm ${{ github.run_number }}
+          name: Eğitim Takip - Sürüm 2.0.${{ github.run_number }}
           body: |
             Telefona kurmak için aşağıdaki **egitim-takip.apk** dosyasına dokunun.
           files: build/app/outputs/flutter-apk/egitim-takip.apk

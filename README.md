@@ -86,6 +86,22 @@ Elle yapıyorsanız ayrıca `android/app/build.gradle(.kts)` içindeki
 - İleride Google Play'e koymak isterseniz: `flutter build appbundle` ve
   Play Console geliştirici hesabı (tek seferlik ücretli) gerekir.
 
+## GitHub ile otomatik APK
+
+`main` dalına her gönderimde `.github/workflows/apk.yml` APK'yı derler ve
+**Releases** bölümüne `egitim-takip.apk` olarak koyar.
+
+- İmza anahtarı depoda şifreli durur: `ci/imza.keystore.enc`.
+- Şifresi GitHub'da **Settings → Secrets and variables → Actions** altında
+  `EGITIM_KEYSTORE_PASSWORD` adıyla kayıtlı olmalıdır. Yoksa derleme durur.
+- Şifreyi ve anahtarın şifresiz yedeğini güvenli bir yerde saklayın.
+  Kaybolursa yeni sürümler eskisinin üzerine kurulamaz.
+- Sürüm adı `2.0.<derleme no>` olarak otomatik verilir.
+
+> Kasım 2026'da imza anahtarı yenilendi. Bu tarihten önce kurulmuş
+> uygulamayı bir kez **kaldırıp** yeni APK'yı kurmak gerekir. Veriler
+> Firebase'de durduğu için hiçbir kayıt kaybolmaz; yeniden giriş yapmak yeterlidir.
+
 ## Kullanım akışı
 
 1. **Veli** hesap açar → rol: *Veli* → **Öğrenci Ekle** (ad, sınıf).
@@ -116,7 +132,9 @@ lib/
       books_tab.dart            Kitap okuma
       test_books_tab.dart       Test kitapları (konu + sayfa işaretleme)
       tests_tab.dart            Test / deneme sonuçları
-firestore.rules                 Güvenlik kuralları
+firestore.rules                 Güvenlik kuralları (aynı Firebase projesindeki
+                                Keleş Satış kurallarını da içerir; yüklerken
+                                bu dosyanın tamamını kullanın)
 kurulum.sh                      Tek seferlik kurulum betiği
 ```
 
