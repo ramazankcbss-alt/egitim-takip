@@ -62,15 +62,15 @@ jobs:
       - name: APK derle
         run: |
           flutter build apk --release \
-            --build-name=2.0.${{ github.run_number }} \
-            --build-number=$((100 + ${{ github.run_number }}))
+            --build-name=3.0.${{ github.run_number }} \
+            --build-number=$((1000 + ${{ github.run_number }}))
           mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/egitim-takip.apk
 
       - name: APK'yı yayınla
         uses: softprops/action-gh-release@v2
         with:
           tag_name: surum-${{ github.run_number }}
-          name: Eğitim Takip - Sürüm 2.0.${{ github.run_number }}
+          name: Eğitim Takip - Sürüm 3.0.${{ github.run_number }}
           body: |
             Telefona kurmak için aşağıdaki **egitim-takip.apk** dosyasına dokunun.
           files: build/app/outputs/flutter-apk/egitim-takip.apk
