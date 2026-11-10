@@ -44,7 +44,8 @@ const pencereJs = r'''
 (function(){
   if(window.__ettPencere) return 'ok';
   window.__ettPencere = 1;
-  window.open = function(u){ if(u){ try{ location.href = new URL(u, location.href).href; }catch(e){ location.href = u; } } return window; };
+  window.__ettAcilan = window.__ettAcilan || [];
+  window.open = function(u){ window.__ettAcilan.push(String(u||'')); if(u){ try{ location.href = new URL(u, location.href).href; }catch(e){ location.href = u; } } return window; };
   function duzelt(){
     var l = document.querySelectorAll('a[target],form[target]');
     for(var i=0;i<l.length;i++){ l[i].removeAttribute('target'); }
@@ -56,6 +57,37 @@ const pencereJs = r'''
 ''';
 
 const _secici = 'a,button,input[type=button],input[type=submit],[onclick]';
+
+/// Tanılama: "Görüntüle" düğmelerinin HTML'i, açılmaya çalışılan pencereler, adres.
+const _tanilamaJs = r'''
+(function(){
+  var el = document.querySelectorAll('a,button,input[type=button],input[type=submit],[onclick]');
+  var out = ['Adres: ' + location.href];
+  var n = 0;
+  for(var i=0;i<el.length && n<4;i++){
+    var t = ((el[i].textContent || el[i].value || '') + '').replace(/\s+/g,' ').trim();
+    if(!/g[öo]r[üu]nt[üu]le|incele|detay/i.test(t)) continue;
+    n++;
+    out.push('Düğme: ' + (el[i].outerHTML || '').slice(0, 600));
+    var f = el[i].closest ? el[i].closest('form') : null;
+    if(f) out.push('Form: ' + f.method + ' ' + f.action + ' target=' + (f.getAttribute('target')||''));
+  }
+  out.push('Pencere: ' + JSON.stringify(window.__ettAcilan || []));
+  return JSON.stringify(out.join('\n'));
+})();
+''';
+
+/// Düğmenin onclick / href içinde bir sayfa adresi varsa onu döndürür.
+String _adresJs(int i) => '''
+(function(){
+  var e = document.querySelectorAll('$_secici')[$i];
+  if(!e) return '';
+  var a = (e.getAttribute('onclick')||'') + ' ' + (e.getAttribute('href')||'') + ' ' + (e.getAttribute('data-url')||'');
+  var m = a.match(/(https?:\\/\\/[^'"\\s)]+|\\/?[A-Za-z0-9_\\/.-]+\\.aspx[^'"\\s)]*)/);
+  if(!m) return '';
+  try { return new URL(m[1], location.href).href; } catch(x) { return ''; }
+})();
+''';
 
 /// Tablo satırlarındaki "Görüntüle" / "İncele" / "Detay" düğmeleri: [satır metni, sıra].
 const _goruntuleJs = r'''
@@ -99,6 +131,7 @@ class _OsymEkraniState extends State<OsymEkrani> {
   late final WebViewController _c;
   final _toplanan = <String, OsymTaslak>{};
   final _metinler = <String, String>{};
+  final _gecmis = <String>[];
   int _ilerleme = 0;
   bool _esitleniyor = false;
   bool _otomatikDenendi = false;
@@ -114,7 +147,17 @@ class _OsymEkraniState extends State<OsymEkrani> {
       ..enableZoom(true)
       ..setNavigationDelegate(NavigationDelegate(
         onProgress: (p) {
+          // Sayfa yüklenirken de pencere düzeltmesini erken uygula (satır içi
+          // betikler window.open çağırmadan önce yakalansın).
+          _c.runJavaScript(pencereJs).catchError((_) {});
           if (mounted) setState(() => _ilerleme = p);
+        },
+        onNavigationRequest: (r) {
+          _gecmis.add('İstek: ${r.url}');
+          return NavigationDecision.navigate;
+        },
+        onWebResourceError: (e) {
+          if (e.isForMainFrame ?? true) _gecmis.add('Hata: ${e.errorCode} ${e.description} ${e.url ?? ''}');
         },
         onPageFinished: (url) {
           _c.runJavaScript(pencereJs).catchError((_) {});
@@ -285,8 +328,19 @@ class _OsymEkraniState extends State<OsymEkrani> {
             break;
           }
         }
+        final once = await _c.currentUrl();
         await _bekle(() => _c.runJavaScript(_siraylaTiklaJs(sira)), sure: const Duration(seconds: 10));
         await Future<void>.delayed(const Duration(milliseconds: 1800));
+        if (await _c.currentUrl() == once) {
+          // Tıklama sayfa açmadıysa düğmedeki adresi doğrudan aç
+          final r = await _c.runJavaScriptReturningResult(_adresJs(sira));
+          var u = r.toString();
+          if (u.startsWith('"')) u = (jsonDecode(u) as String);
+          if (u.startsWith('http')) {
+            await _bekle(() => _c.loadRequest(Uri.parse(u)), sure: const Duration(seconds: 10));
+            await Future<void>.delayed(const Duration(milliseconds: 1500));
+          }
+        }
         await _oku(ad);
       } catch (_) {}
     }
@@ -332,6 +386,10 @@ class _OsymEkraniState extends State<OsymEkrani> {
 
   Future<void> _kopyala() async {
     if (_metinler.isEmpty) await _oku('Açık sayfa');
+    try {
+      final t = await _js(_tanilamaJs);
+      _metinler['Tanılama'] = '$t\n${_gecmis.reversed.take(15).join('\n')}';
+    } catch (_) {}
     await Clipboard.setData(ClipboardData(
         text: _metinler.entries.map((e) => '=== ${e.key} ===\n${e.value}').join('\n\n')));
     if (!mounted) return;
