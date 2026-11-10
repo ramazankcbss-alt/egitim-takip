@@ -355,5 +355,150 @@ service cloud.firestore {
       allow update: if false;
       allow delete: if satisYonetici(resource.data.firmaId);
     }
+
+    // =====================================================================
+    // Bereket / Tarlam (GEÇİCİ: uygulama kendi projesine taşınana kadar)
+    // İşletme verisini yalnızca üyeler görür ve yazar. Davet kodu yalnızca
+    // yöneticilerin okuyabildiği gizli/kodlar belgesindedir.
+    // Keleş Satış verisi Tarlam'dan yalnızca okunur (yukarıdaki kurallar).
+    // =====================================================================
+    function tarlamYol(iid) {
+      return /databases/$(database)/documents/tarlam_isletmeler/$(iid);
+    }
+    function tarlamUye(iid) { return signedIn() && uid() in get(tarlamYol(iid)).data.uyeler; }
+    function tarlamYonetici(iid) { return signedIn() && uid() in get(tarlamYol(iid)).data.yoneticiler; }
+    // Aile üyesi (Babam, Kardeşim): yalnızca kendi özetini ve hareketlerini görür.
+    function tarlamAileAdi(iid) {
+      return get(tarlamYol(iid)).data.get('aile', {}).get(uid(), '');
+    }
+    function tarlamAileKodu(iid) {
+      return get(/databases/$(database)/documents/tarlam_aile_kodlar/$(getAfter(/databases/$(database)/documents/tarlam_isletmeler/$(iid)/aileKatilim/$(uid())).data.kod)).data;
+    }
+    function tarlamGizliSonra(iid) {
+      return getAfter(/databases/$(database)/documents/tarlam_isletmeler/$(iid)/gizli/kodlar).data;
+    }
+
+    match /tarlam_kullanicilar/{userId} {
+      allow get: if signedIn();
+      allow list: if false;
+      allow create, update: if signedIn() && uid() == userId
+        && (!('ad' in request.resource.data) || shortStr(request.resource.data.ad, 80))
+        && (!('isletmeId' in request.resource.data) || shortStr(request.resource.data.isletmeId, 64));
+      allow delete: if false;
+    }
+
+    match /tarlam_kodlar/{kod} {
+      allow get: if signedIn();
+      allow list: if false;
+      allow create: if signedIn()
+        && uid() in getAfter(tarlamYol(request.resource.data.isletmeId)).data.yoneticiler
+        && tarlamGizliSonra(request.resource.data.isletmeId).get('kod', '') == kod;
+      allow delete: if signedIn() && tarlamYonetici(resource.data.isletmeId);
+      allow update: if false;
+    }
+
+    match /tarlam_aile_kodlar/{kod} {
+      allow get: if signedIn();
+      allow list: if false;
+      allow create: if signedIn()
+        && uid() in get(tarlamYol(request.resource.data.isletmeId)).data.yoneticiler
+        && shortStr(request.resource.data.ad, 40);
+      allow delete: if signedIn() && tarlamYonetici(resource.data.isletmeId);
+      allow update: if false;
+    }
+
+    match /tarlam_isletmeler/{iid} {
+      allow get: if signedIn()
+        && (uid() in resource.data.uyeler || uid() in resource.data.get('aile', {}).keys());
+      allow list: if false;
+      allow create: if signedIn()
+        && request.resource.data.sahip == uid()
+        && request.resource.data.uyeler == [uid()]
+        && request.resource.data.yoneticiler == [uid()]
+        && shortStr(request.resource.data.ad, 60);
+      allow update: if signedIn() && (
+        // Yönetici: ayarlar ve ekip. Sahip değişmez, sahip çıkarılamaz.
+        (uid() in resource.data.yoneticiler
+          && request.resource.data.sahip == resource.data.sahip
+          && resource.data.sahip in request.resource.data.uyeler
+          && resource.data.sahip in request.resource.data.yoneticiler
+          && request.resource.data.yoneticiler.hasOnly(request.resource.data.uyeler)
+          && shortStr(request.resource.data.ad, 60))
+        // Üye: yalnızca ayarları değiştirebilir.
+        || (uid() in resource.data.uyeler
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['ayarlar']))
+        // Aile katılımı: aile koduyla yalnızca kendini, koddaki adla ekler.
+        || (!(uid() in resource.data.uyeler)
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['aile'])
+          && request.resource.data.aile.diff(resource.data.get('aile', {})).affectedKeys().hasOnly([uid()])
+          && tarlamAileKodu(iid).isletmeId == iid
+          && request.resource.data.aile[uid()] == tarlamAileKodu(iid).ad)
+        // Katılım: davet koduyla yalnızca kendini ekler.
+        || (!(uid() in resource.data.uyeler)
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['uyeler'])
+          && request.resource.data.uyeler.toSet() == resource.data.uyeler.toSet().union([uid()].toSet())
+          && getAfter(/databases/$(database)/documents/tarlam_isletmeler/$(iid)/katilim/$(uid())).data.kod
+             == tarlamGizliSonra(iid).kod)
+      );
+      allow delete: if signedIn() && uid() == resource.data.sahip;
+
+      match /gizli/{belge} {
+        allow read: if tarlamYonetici(iid);
+        allow write: if signedIn() && uid() in getAfter(tarlamYol(iid)).data.yoneticiler;
+      }
+
+      match /katilim/{userId} {
+        allow create, update: if signedIn() && uid() == userId
+          && shortStr(request.resource.data.kod, 16);
+        allow read: if tarlamYonetici(iid);
+        allow delete: if false;
+      }
+
+      // Aile katılımında girilen kod.
+      match /aileKatilim/{userId} {
+        allow create, update: if signedIn() && uid() == userId
+          && shortStr(request.resource.data.kod, 16);
+        allow read: if tarlamYonetici(iid);
+        allow delete: if false;
+      }
+
+      // Aile üyesinin ekranı için özet: işletme üyeleri yazar, kişi kendi özetini okur.
+      match /aile_ozet/{ad} {
+        allow read: if tarlamUye(iid)
+          || (signedIn() && tarlamAileAdi(iid) != '' && tarlamAileAdi(iid) == ad);
+        allow write: if tarlamUye(iid);
+      }
+
+      // Aile ile alacak/verecek kayıtları.
+      match /aile_hareketler/{hid} {
+        allow read: if tarlamUye(iid)
+          || (signedIn() && tarlamAileAdi(iid) != '' && resource.data.kisi == tarlamAileAdi(iid));
+        allow create: if (tarlamUye(iid)
+          || (signedIn() && tarlamAileAdi(iid) != ''
+            && request.resource.data.kisi == tarlamAileAdi(iid)
+            && request.resource.data.ekleyen == uid()))
+          && request.resource.data.size() <= 20;
+        allow update: if tarlamUye(iid)
+          || (signedIn() && resource.data.ekleyen == uid()
+            && request.resource.data.kisi == resource.data.kisi
+            && request.resource.data.ekleyen == uid()
+            && request.resource.data.size() <= 20);
+        allow delete: if tarlamUye(iid)
+          || (signedIn() && resource.data.ekleyen == uid());
+      }
+
+      // Tarlalar, ekimler, giderler, satışlar, hesaplar, gelirler...
+      match /{koleksiyon}/{belge} {
+        function tarlamKoleksiyon() {
+          return koleksiyon in ['tarlalar', 'ekimler', 'giderler', 'sayaclar',
+            'satislar', 'hesaplar', 'gelirler', 'isyerleri', 'varliklar',
+            'fiyatlar', 'isler', 'kotalar', 'ekipmanlar', 'belgeler'];
+        }
+        allow read: if tarlamKoleksiyon() && tarlamUye(iid);
+        allow create, update: if tarlamKoleksiyon() && tarlamUye(iid)
+          && request.resource.data.size() <= 40;
+        allow delete: if tarlamKoleksiyon() && tarlamUye(iid);
+      }
+    }
   }
 }
