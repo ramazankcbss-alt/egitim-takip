@@ -57,6 +57,11 @@ class _ProfileGateState extends State<_ProfileGate> {
         }
         final me = snap.data;
         if (me == null) return ProfileSetupScreen(user: widget.user);
+        // Giriş e-postası değiştirildiyse profildeki adresi de güncelle.
+        final e = widget.user.email;
+        if (e != null && e.isNotEmpty && e != me.email) {
+          Db.updateEmail(me.uid, e).catchError((_) {});
+        }
         return HomeScreen(key: ValueKey('${me.uid}|${me.role.name}'), me: me);
       },
     );

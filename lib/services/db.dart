@@ -70,6 +70,10 @@ class Db {
         'createdAt': _now(),
       });
 
+  /// Profilde görünen e-posta adresini günceller.
+  static Future<void> updateEmail(String uid, String email) =>
+      _users.doc(uid).update({'email': email, 'updatedAt': _now()});
+
   /// Hesap türünü (rolü) ve adı değiştirir.
   static Future<void> updateRole(String uid, UserRole role) =>
       _users.doc(uid).update({'role': role.name, 'updatedAt': _now()});
