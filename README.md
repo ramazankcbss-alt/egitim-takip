@@ -132,9 +132,7 @@ lib/
       books_tab.dart            Kitap okuma
       test_books_tab.dart       Test kitapları (konu + sayfa işaretleme)
       tests_tab.dart            Test / deneme sonuçları
-firestore.rules                 Güvenlik kuralları (aynı Firebase projesindeki
-                                Keleş Satış kurallarını da içerir; yüklerken
-                                bu dosyanın tamamını kullanın)
+firestore.rules                 Güvenlik kuralları (yalnızca Eğitim Takip)
 kurulum.sh                      Tek seferlik kurulum betiği
 ```
 
