@@ -1,0 +1,306 @@
+{
+ "tarih": "2026-11-10",
+ "ad": "Günlük AGS + PDR ÖABT denemesi",
+ "sorular": [
+  {
+   "id": "g20261110-01",
+   "ders": "sozel",
+   "konu": "Cümlede Anlam",
+   "soru": "Aşağıdaki cümlelerin hangisinde yargı, bir amaca bağlanarak anlatılmıştır?",
+   "secenekler": [
+    "Sınavı kazanmak için her gün düzenli olarak çalışıyor.",
+    "Yağmur yağdığı için maç ertelendi.",
+    "Erken çıkarsan son otobüse yetişirsin.",
+    "Kitabı bitirince bana da verir misin?",
+    "Hava çok soğuk olmasına rağmen dışarı çıktı."
+   ],
+   "cevap": 0,
+   "aciklama": "\"Sınavı kazanmak için\" ifadesi çalışmanın amacını bildirir. Diğerlerinde sırasıyla neden-sonuç, koşul, zaman ve karşıtlık ilişkisi vardır."
+  },
+  {
+   "id": "g20261110-02",
+   "ders": "sozel",
+   "konu": "Anlatımın Oluşması",
+   "soru": "\"Şehrimizde toplu taşımayı kullananların sayısı son yıllarda belirgin biçimde arttı. Günlük yolcu sayısı beş yıl önce yaklaşık 40 bin iken bugün 80 bine ulaştı.\"\nBu parçada düşünceyi geliştirme yollarından hangisine başvurulmuştur?",
+   "secenekler": [
+    "Tanık gösterme",
+    "Sayısal verilerden yararlanma",
+    "Benzetme",
+    "Tanımlama",
+    "Örneklendirme"
+   ],
+   "cevap": 1,
+   "aciklama": "Yazar, artışı somutlaştırmak için yolcu sayılarını (40 bin ve 80 bin) kullanmıştır; bu, sayısal verilerden yararlanmadır."
+  },
+  {
+   "id": "g20261110-03",
+   "ders": "sozel",
+   "konu": "Sözel Mantık",
+   "soru": "Ali, Banu, Cem ve Deniz; elma, armut, kiraz ve üzümden birer tane, her biri farklı olmak üzere seçmiştir.\n• Banu armut seçmiştir.\n• Ali kiraz ya da üzüm seçmemiştir.\n• Cem üzüm seçmemiştir.\nBuna göre Deniz hangi meyveyi seçmiştir?",
+   "secenekler": [
+    "Elma",
+    "Armut",
+    "Üzüm",
+    "Kiraz",
+    "Belirlenemez"
+   ],
+   "cevap": 2,
+   "aciklama": "Banu armut seçtiği için Ali, kiraz ve üzüm de olamadığından elma seçmiştir. Geriye kiraz ve üzüm kalır; Cem üzüm seçmediği için kirazı, Deniz de üzümü seçmiştir."
+  },
+  {
+   "id": "g20261110-04",
+   "ders": "sayisal",
+   "konu": "Sayısal Mantık",
+   "soru": "2, 5, 11, 23, 47, ...\nYukarıdaki sayı dizisinde her terim belirli bir kurala göre bir öncekinden elde edilmiştir. Buna göre dizinin bir sonraki terimi kaçtır?",
+   "secenekler": [
+    "89",
+    "93",
+    "94",
+    "95",
+    "97"
+   ],
+   "cevap": 3,
+   "aciklama": "Her terim, bir önceki terimin 2 katının 1 fazlasıdır: 2·2+1=5, 5·2+1=11, 11·2+1=23, 23·2+1=47, 47·2+1=95."
+  },
+  {
+   "id": "g20261110-05",
+   "ders": "sayisal",
+   "konu": "Veri Yorumlama",
+   "soru": "Bir kırtasiyenin pazartesiden perşembeye kadar sattığı defter sayıları sırasıyla 12, 18, 15 ve 25'tir.\nBuna göre bu dört günde günlük ortalama kaç defter satılmıştır?",
+   "secenekler": [
+    "16",
+    "17",
+    "18",
+    "18,5",
+    "17,5"
+   ],
+   "cevap": 4,
+   "aciklama": "Toplam satış 12+18+15+25=70'tir. Ortalama 70÷4=17,5 defterdir."
+  },
+  {
+   "id": "g20261110-06",
+   "ders": "sayisal",
+   "konu": "Geometri",
+   "soru": "Uzun kenarı kısa kenarının 2 katı olan bir dikdörtgenin çevresi 36 cm'dir.\nBu dikdörtgenin alanı kaç cm²'dir?",
+   "secenekler": [
+    "72",
+    "54",
+    "64",
+    "81",
+    "96"
+   ],
+   "cevap": 0,
+   "aciklama": "Kısa kenar x ise uzun kenar 2x'tir. Çevre 2(x+2x)=6x=36, x=6 cm. Kenarlar 6 ve 12 cm, alan 6·12=72 cm²."
+  },
+  {
+   "id": "g20261110-07",
+   "ders": "tarih",
+   "konu": "Tarih: Türk-İslam Devletleri",
+   "soru": "1071 yılında Bizans ordusunu yenerek Anadolu'nun kapılarını Türklere açan Malazgirt Savaşı'nda Büyük Selçuklu Devleti'nin hükümdarı kimdir?",
+   "secenekler": [
+    "Tuğrul Bey",
+    "Alparslan",
+    "Melikşah",
+    "Sultan Sencer",
+    "Çağrı Bey"
+   ],
+   "cevap": 1,
+   "aciklama": "Malazgirt Savaşı Büyük Selçuklu Sultanı Alparslan ile Bizans İmparatoru Romen Diyojen arasında yapılmış ve Selçuklular kazanmıştır."
+  },
+  {
+   "id": "g20261110-08",
+   "ders": "tarih",
+   "konu": "Tarih: Atatürk İlke ve İnkılapları",
+   "soru": "Özel girişimin yetersiz kaldığı alanlarda devletin ekonomik yatırımlar yapmasını öngören Atatürk ilkesi hangisidir?",
+   "secenekler": [
+    "Halkçılık",
+    "Laiklik",
+    "Devletçilik",
+    "Milliyetçilik",
+    "Cumhuriyetçilik"
+   ],
+   "cevap": 2,
+   "aciklama": "Devletçilik, özel sermayenin yetmediği alanlarda devletin ekonomiye yatırımcı olarak katılmasını ifade eder."
+  },
+  {
+   "id": "g20261110-09",
+   "ders": "cografya",
+   "konu": "Coğrafya: Coğrafi Konum",
+   "soru": "Türkiye'nin Yengeç Dönencesi'nin kuzeyinde yer almasının doğrudan sonucu aşağıdakilerden hangisidir?",
+   "secenekler": [
+    "Doğu ile batı uçları arasında yerel saat farkı bulunması",
+    "Karadeniz kıyılarının her mevsim yağış alması",
+    "İstanbul ve Çanakkale boğazlarının stratejik önem taşıması",
+    "Güneş ışınlarının yıl boyunca Türkiye'de hiçbir yere dik açıyla gelmemesi",
+    "Doğu Anadolu'nun ortalama yükseltisinin fazla olması"
+   ],
+   "cevap": 3,
+   "aciklama": "Güneş ışınları yalnızca dönenceler arasında dik açıyla gelebilir. Türkiye Yengeç Dönencesi'nin kuzeyinde olduğundan ışınlar hiçbir zaman dik gelmez. Diğer seçenekler boylam, yer şekilleri ve özel konumla ilgilidir."
+  },
+  {
+   "id": "g20261110-10",
+   "ders": "cografya",
+   "konu": "Coğrafya: İklim ve Bitki Örtüsü",
+   "soru": "Yazları sıcak ve kurak, kışları ılık ve yağışlı geçen Akdeniz ikliminin görüldüğü alanlarda, ormanların tahrip edildiği yerlerde yaygın olan bodur ve sık çalılardan oluşan bitki örtüsü hangisidir?",
+   "secenekler": [
+    "Bozkır",
+    "Tundra",
+    "Savan",
+    "Çayır",
+    "Maki"
+   ],
+   "cevap": 4,
+   "aciklama": "Akdeniz ikliminin bitki örtüsü makidir; kızılçam ormanlarının tahrip edildiği alanlarda bodur, sık ve her mevsim yeşil çalılar yayılır."
+  },
+  {
+   "id": "g20261110-11",
+   "ders": "egitim",
+   "konu": "Sınıf Yönetimi",
+   "soru": "Sınıfta tahtaya yazı yazarken arka sıralarda konuşmaya başlayan iki öğrenciyi fark edip onlara dönmeden adlarıyla uyaran öğretmen, Kounin'in etkili sınıf yönetimi kavramlarından hangisini göstermektedir?",
+   "secenekler": [
+    "Her şeyden haberdar olma",
+    "Aşırı tepki gösterme",
+    "Grup odaklılık",
+    "Dalgalanma etkisi",
+    "Akıcılık"
+   ],
+   "cevap": 0,
+   "aciklama": "Kounin'e göre öğretmenin sınıfta olup biten her şeyin farkında olduğunu öğrencilere hissettirmesi \"her şeyden haberdar olma\"dır."
+  },
+  {
+   "id": "g20261110-12",
+   "ders": "egitim",
+   "konu": "Rehberlik",
+   "soru": "Okul rehberlik servisinin, öğrencinin ilgi ve yeteneklerine uygun bir okula, programa ya da etkinliğe yerleşmesine yardım ettiği hizmet türü hangisidir?",
+   "secenekler": [
+    "Bireyi tanıma",
+    "Yöneltme ve yerleştirme",
+    "Bilgi verme",
+    "Psikolojik danışma",
+    "Konsültasyon"
+   ],
+   "cevap": 1,
+   "aciklama": "Öğrencinin özelliklerine uygun eğitim ortamına ya da programa yönlendirilmesi ve yerleşmesine yardım edilmesi yöneltme ve yerleştirme hizmetidir."
+  },
+  {
+   "id": "g20261110-13",
+   "ders": "egitim",
+   "konu": "Program Okuryazarlığı",
+   "soru": "Tyler'ın eğitim programının temel öğelerine ilişkin sorularından \"Ne öğretilmeli?\" sorusu programın hangi öğesiyle ilgilidir?",
+   "secenekler": [
+    "Hedef",
+    "Öğrenme-öğretme süreci",
+    "İçerik",
+    "Değerlendirme",
+    "Ölçme aracı"
+   ],
+   "cevap": 2,
+   "aciklama": "Hedef \"Niçin?\", içerik \"Ne?\", öğrenme-öğretme süreci \"Nasıl?\", değerlendirme ise \"Ne kadar gerçekleşti?\" sorusuna karşılık gelir."
+  },
+  {
+   "id": "g20261110-14",
+   "ders": "egitim",
+   "konu": "Öğretim Teknolojileri",
+   "soru": "Edgar Dale'in yaşantı konisinde en soyut yaşantılar, koninin en üst basamağında yer alan hangi grupta bulunur?",
+   "secenekler": [
+    "Doğrudan amaçlı yaşantılar",
+    "Gösteri",
+    "Gezi",
+    "Sözel semboller",
+    "Model ve taklitler"
+   ],
+   "cevap": 3,
+   "aciklama": "Yaşantı konisi tabandaki doğrudan amaçlı yaşantılardan tepedeki sözel sembollere doğru somuttan soyuta ilerler."
+  },
+  {
+   "id": "g20261110-15",
+   "ders": "egitim",
+   "konu": "Türk Milli Eğitim Sisteminin Yapısı",
+   "soru": "Halk eğitimi merkezlerinde yetişkinlere yönelik açılan kurslar, Türk Millî Eğitim Sistemi'nin hangi bölümü kapsamındadır?",
+   "secenekler": [
+    "Okul öncesi eğitim",
+    "Temel eğitim",
+    "Ortaöğretim",
+    "Yükseköğretim",
+    "Yaygın eğitim"
+   ],
+   "cevap": 4,
+   "aciklama": "Millî Eğitim Sistemi örgün ve yaygın eğitim olmak üzere iki ana bölümden oluşur. Halk eğitimi merkezlerindeki kurslar örgün eğitim dışındaki yaygın eğitim etkinlikleridir."
+  },
+  {
+   "id": "g20261110-16",
+   "ders": "mevzuat",
+   "konu": "222 Sayılı İlköğretim Kanunu",
+   "soru": "222 sayılı İlköğretim ve Eğitim Kanunu'na göre devlet okullarındaki ilköğretim için aşağıdakilerden hangisi doğrudur?",
+   "secenekler": [
+    "Zorunludur ve devlet okullarında parasızdır.",
+    "İsteğe bağlıdır ve ücretlidir.",
+    "Yalnızca şehir merkezlerinde zorunludur.",
+    "Zorunludur ancak velilerden katkı payı alınır.",
+    "Yalnızca erkek çocuklar için zorunludur."
+   ],
+   "cevap": 0,
+   "aciklama": "222 sayılı Kanun'a göre ilköğretim, kız ve erkek bütün Türk çocukları için zorunludur ve devlet okullarında parasızdır."
+  },
+  {
+   "id": "g20261110-17",
+   "ders": "mevzuat",
+   "konu": "7528 Sayılı Öğretmenlik Meslek Kanunu",
+   "soru": "7528 sayılı Öğretmenlik Meslek Kanunu'na göre öğretmenlik kariyer basamakları aşağıdakilerden hangisinde doğru verilmiştir?",
+   "secenekler": [
+    "Aday öğretmen, öğretmen, müdür yardımcısı",
+    "Öğretmen, uzman öğretmen, başöğretmen",
+    "Öğretmen, eğitim uzmanı, eğitim müfettişi",
+    "Stajyer öğretmen, kadrolu öğretmen, uzman",
+    "Öğretmen, şube müdürü, millî eğitim müdürü"
+   ],
+   "cevap": 1,
+   "aciklama": "Kanun'a göre öğretmenlik kariyer basamakları öğretmen, uzman öğretmen ve başöğretmendir."
+  },
+  {
+   "id": "g20261110-18",
+   "ders": "pdr",
+   "konu": "Psikolojik Danışma Kuramları",
+   "soru": "Ellis'in Akılcı Duygusal Davranışçı Terapi'sindeki ABC modelinde \"B\" neyi ifade eder?",
+   "secenekler": [
+    "Harekete geçirici olayı",
+    "Duygusal ve davranışsal sonucu",
+    "Kişinin olaya ilişkin inancını",
+    "İnançların sorgulanmasını",
+    "Yeni ve etkili felsefeyi"
+   ],
+   "cevap": 2,
+   "aciklama": "A harekete geçirici olay, B bu olaya ilişkin inanç, C ise duygusal ve davranışsal sonuçtur. Sorgulama (D) ve yeni etkili felsefe (E) modelin genişletilmiş adımlarıdır."
+  },
+  {
+   "id": "g20261110-19",
+   "ders": "pdr",
+   "konu": "Grupla Psikolojik Danışma",
+   "soru": "Grup oturumunda bir üye, sınav kaygısını yalnızca kendisinin yaşadığını sanırken diğer üyelerin de benzer duygular paylaştığını görerek rahatlamıştır.\nYalom'a göre bu durum hangi iyileştirici etkendir?",
+   "secenekler": [
+    "Umut aşılama",
+    "Özgecilik",
+    "Katarsis",
+    "Evrensellik",
+    "Bilgi paylaşma"
+   ],
+   "cevap": 3,
+   "aciklama": "Kişinin sorununun yalnızca kendine özgü olmadığını, başkalarının da benzer yaşantıları olduğunu fark etmesi evrensellik olarak adlandırılır."
+  },
+  {
+   "id": "g20261110-20",
+   "ders": "pdr",
+   "konu": "Mesleki Etik",
+   "soru": "Psikolojik danışmada gizlilik ilkesinin sınırlandırılabileceği durum aşağıdakilerden hangisidir?",
+   "secenekler": [
+    "Velinin oturumlarda konuşulanları merak etmesi",
+    "Sınıf öğretmeninin öğrencinin notlarını öğrenmek istemesi",
+    "Danışanın oturuma geç kalması",
+    "Danışmanın vaka hakkında arkadaşlarıyla sohbet etmek istemesi",
+    "Danışanın kendisine ya da başkalarına ciddi zarar verme riskinin bulunması"
+   ],
+   "cevap": 4,
+   "aciklama": "Gizlilik temel bir ilkedir; ancak danışanın kendisi ya da başkaları için ciddi ve yakın bir tehlike söz konusu olduğunda sınırlandırılabilir."
+  }
+ ]
+}
