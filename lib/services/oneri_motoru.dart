@@ -213,6 +213,7 @@ class OneriMotoru {
     this.dersAdlari = const [],
     this.osym = const [],
     this.okulVar = true,
+    this.yas,
     DateTime? simdi,
   }) : simdi = simdi ?? DateTime.now();
 
@@ -228,6 +229,18 @@ class OneriMotoru {
   /// Öğrenci okula devam ediyor mu (okul notları değerlendirilsin mi)?
   final bool okulVar;
 
+  /// Doğum yılından hesaplanan yaş (bilinmiyorsa null).
+  final int? yas;
+
+  /// Yaşa göre önerilen gece uykusu (saat): alt-üst.
+  (int, int)? get uykuAraligi {
+    final y = yas;
+    if (y == null || y < 5) return null;
+    if (y <= 12) return (9, 12);
+    if (y <= 17) return (8, 10);
+    return (7, 9);
+  }
+
   bool get _lgs => profil == 'LGS';
   bool get _osymMi => const ['YKS', 'KPSS', 'AGS'].contains(profil);
 
@@ -235,7 +248,12 @@ class OneriMotoru {
         'LGS' => 60,
         'YKS' => 120,
         'KPSS' || 'AGS' => 100,
-        _ => 30,
+        // Okul profilinde küçük yaşlarda yük azaltılır.
+        _ => switch (yas) {
+            final int y when y <= 8 => 10,
+            final int y when y <= 10 => 20,
+            _ => 30,
+          },
       };
 
   /// Haftalık önerilen çalışma (saat): alt-üst.
@@ -243,7 +261,11 @@ class OneriMotoru {
         'LGS' => (10, 15),
         'YKS' => (25, 35),
         'KPSS' || 'AGS' => (20, 30),
-        _ => (6, 10),
+        _ => switch (yas) {
+            final int y when y <= 8 => (2, 4),
+            final int y when y <= 10 => (4, 7),
+            _ => (6, 10),
+          },
       };
 
   String get _sinavAdi => switch (profil) {
@@ -609,6 +631,16 @@ class OneriMotoru {
     }
 
     final dz = duzen;
+    final uy = uykuAraligi;
+    if (dz != null && uy != null) {
+      // Hafta içi uyku süresi (yatma → kalkış, gece yarısını aşabilir).
+      final uyku = (dz.haftaIciKalkis - dz.haftaIciYatma + 24 * 60) % (24 * 60);
+      if (uyku < uy.$1 * 60) {
+        oneriler.add(Oneri(uyku < (uy.$1 - 1) * 60 ? Onem.onemli : Onem.bilgi, Icons.bedtime_outlined,
+            'Hafta içi uyku ${sureYaz(uyku)}. $yas yaş için gecede ${uy.$1}-${uy.$2} saat uyku önerilir; '
+            'yatma saatini biraz öne almak verimi artırır.'));
+      }
+    }
     if (dz != null) {
       final haftalikTel = dz.telefonHaftaIci * 5 + dz.telefonHaftaSonu * 2;
       if (dz.telefonHaftaIci > 120 || dz.telefonHaftaSonu > 180) {

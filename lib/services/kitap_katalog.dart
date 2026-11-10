@@ -78,10 +78,12 @@ class KitapKatalog {
     if (_yerel != null) return _yerel!;
     try {
       final liste = jsonDecode(await rootBundle.loadString('assets/kitaplar.json'));
-      _yerel = {
-        for (final m in (liste as List).whereType<Map<String, dynamic>>())
-          (m['isbn'] ?? '').toString(): KatalogKitap.fromMap(m),
-      };
+      _yerel = {};
+      for (final m in (liste as List).whereType<Map<String, dynamic>>()) {
+        final k = KatalogKitap.fromMap(m);
+        // Barkodu bilinmeyen kitaplar adlarıyla tutulur (adla aramada bulunur).
+        _yerel![k.isbn.isNotEmpty ? k.isbn : 'liste:${k.title}'] = k;
+      }
     } catch (e) {
       debugPrint('Hazır kitap listesi okunamadı: $e');
       _yerel = {};

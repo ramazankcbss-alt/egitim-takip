@@ -93,6 +93,7 @@ class _OnerilerTabState extends State<OnerilerTab> {
           dersAdlari: s.dersler.isNotEmpty ? s.dersler : dersOnerisi(s.grade, _profil, s.alan),
           osym: _osym.value ?? const [],
           okulVar: !okulDisi(s.grade),
+          yas: s.yas,
         ).rapor();
         return _govde(context, rapor);
       },

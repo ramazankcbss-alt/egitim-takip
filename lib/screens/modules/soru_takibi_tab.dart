@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../../lgs.dart';
 import '../../models.dart';
 import '../../services/takip_db.dart';
+import '../../services/takip_dersleri.dart';
 import '../../widgets/common.dart';
 import '../../widgets/dyb_giris.dart';
 import '../../widgets/grafik.dart';
@@ -25,6 +26,7 @@ class _SoruTakibiTabState extends State<SoruTakibiTab> {
   late final LiveValue<List<SoruGirisi>> _girisler =
       LiveValue(TakipDb.sorular(widget.student.id));
   bool _tumGecmis = false;
+  TakipDersleri get _td => TakipDersleri.ogrenci(widget.student);
 
   @override
   void dispose() {
@@ -184,7 +186,7 @@ class _SoruTakibiTabState extends State<SoruTakibiTab> {
                   )
                 : Column(
                     children: [
-                      for (final d in lgsDersler)
+                      for (final d in _td.ileEk(dersHafta.keys))
                         if ((dersHafta[d.ad]?.toplam ?? 0) > 0)
                           DersCubugu(
                             ikon: d.ikon,
@@ -206,9 +208,8 @@ class _SoruTakibiTabState extends State<SoruTakibiTab> {
               children: [
                 for (final e in zayif.take(5))
                   ListTile(
-                    leading: Icon(lgsDers(e.key.split('|').first)?.ikon ??
-                        Icons.topic_outlined,
-                        color: lgsDers(e.key.split('|').first)?.renk),
+                    leading: Icon(_td.ders(e.key.split('|').first).ikon,
+                        color: _td.ders(e.key.split('|').first).renk),
                     title: Text(e.key.split('|').last),
                     subtitle: Text(
                         '${e.key.split('|').first}  •  ${e.value.toplam} soru'),
@@ -257,7 +258,8 @@ class _GirisKarti extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = giris.toplam;
     final yetki = me.role.isAdult || giris.createdBy == me.uid;
-    final d = giris.karma ? null : lgsDers(giris.ders);
+    final td = TakipDersleri.ogrenci(student);
+    final d = giris.karma ? null : td.ders(giris.ders);
     return Card(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(14, 10, 6, 10),
@@ -287,7 +289,7 @@ class _GirisKarti extends StatelessWidget {
                         ? giris.dersler.entries
                             .where((e) => e.value.toplam > 0)
                             .map((e) =>
-                                '${lgsDers(e.key)?.kisa ?? e.key} ${e.value.toplam}')
+                                '${td.ders(e.key).kisa} ${e.value.toplam}')
                             .join('  •  ')
                         : giris.ders,
                     style: Theme.of(context).textTheme.bodySmall,
@@ -422,8 +424,10 @@ class KarmaGirisEkrani extends StatefulWidget {
 
 class _KarmaGirisEkraniState extends State<KarmaGirisEkrani> {
   late DateTime _tarih = widget.giris?.tarih ?? today();
+  late final List<LgsDers> _dersler = TakipDersleri.ogrenci(widget.student)
+      .ileEk(widget.giris?.dersler.keys ?? const <String>[]);
   late final Map<String, DybDenetleyici> _d = {
-    for (final d in lgsDersler)
+    for (final d in _dersler)
       d.ad: DybDenetleyici(widget.giris?.dersler[d.ad] ?? Dyb.bos),
   };
   late final _sure = TextEditingController(
@@ -491,7 +495,7 @@ class _KarmaGirisEkraniState extends State<KarmaGirisEkrani> {
               );
             },
           ),
-          for (final d in lgsDersler) DersDybKart(ders: d, denetleyici: _d[d.ad]!),
+          for (final d in _dersler) DersDybKart(ders: d, denetleyici: _d[d.ad]!),
           const SizedBox(height: 6),
           _SureNotAlanlari(sure: _sure, not: _not),
         ],
@@ -538,13 +542,14 @@ class _KonuGirisEkraniState extends State<KonuGirisEkrani> {
       text: (widget.giris?.sure ?? 0) > 0 ? '${widget.giris!.sure}' : '');
   late final _not = TextEditingController(text: widget.giris?.not ?? '');
   bool _mesgul = false;
+  late final TakipDersleri _td = TakipDersleri.ogrenci(widget.student);
 
   @override
   void initState() {
     super.initState();
     final g = widget.giris;
     if (g != null && g.konu.isNotEmpty) {
-      if ((lgsKonular[g.ders] ?? const []).contains(g.konu)) {
+      if ((_td.konular[g.ders] ?? const []).contains(g.konu)) {
         _konu = g.konu;
       } else {
         _konu = _diger;
@@ -605,7 +610,7 @@ class _KonuGirisEkraniState extends State<KonuGirisEkrani> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final konular = _ders == null ? const <String>[] : (lgsKonular[_ders] ?? const []);
+    final konular = _ders == null ? const <String>[] : (_td.konular[_ders] ?? const <String>[]);
     return Scaffold(
       appBar: AppBar(
           title: Text(
@@ -632,7 +637,7 @@ class _KonuGirisEkraniState extends State<KonuGirisEkrani> {
             decoration: const InputDecoration(
                 labelText: 'Ders', border: OutlineInputBorder()),
             items: [
-              for (final d in lgsDersler)
+              for (final d in _td.ileEk([if (_ders != null) _ders!]))
                 DropdownMenuItem(
                   value: d.ad,
                   child: Row(children: [
