@@ -74,11 +74,29 @@ class Student {
     required this.parentIds,
     required this.teacherIds,
     required this.studentUid,
+    this.hedefSinav = '',
+    this.alan = '',
+    this.dogumYili,
+    this.dersler = const [],
+    this.gizliSekmeler = const [],
+    this.bireysel = false,
   });
 
   final String id;
   final String name;
   final String grade;
+
+  /// '' (belirtilmemiş), 'okul', 'LGS', 'YKS', 'KPSS', 'AGS'
+  final String hedefSinav;
+
+  /// YKS: SAY / EA / SÖZ / DİL; KPSS: Lisans / Önlisans / Ortaöğretim
+  final String alan;
+  final int? dogumYili;
+  final List<String> dersler;
+  final List<String> gizliSekmeler;
+  final bool bireysel;
+
+  int? get yas => dogumYili == null ? null : DateTime.now().year - dogumYili!;
   final String inviteCode;
   final List<String> parentIds;
   final List<String> teacherIds;
@@ -97,6 +115,12 @@ class Student {
       parentIds: _strList(m['parentIds']),
       teacherIds: _strList(m['teacherIds']),
       studentUid: m['studentUid'] as String?,
+      hedefSinav: _str(m['hedefSinav']),
+      alan: _str(m['alan']),
+      dogumYili: m['dogumYili'] is num ? (m['dogumYili'] as num).toInt() : null,
+      dersler: _strList(m['dersler']),
+      gizliSekmeler: _strList(m['gizliSekmeler']),
+      bireysel: m['bireysel'] == true,
     );
   }
 }
@@ -119,6 +143,8 @@ class Homework {
     required this.createdBy,
     required this.createdByName,
     required this.createdAt,
+    this.kitaplar = const [],
+    this.sayfa = '',
   });
 
   final String id;
@@ -126,6 +152,10 @@ class Homework {
   final String subject;
   final String description;
   final DateTime? dueDate;
+
+  /// Ödevin yapılacağı kitaplar ve sayfa / test aralığı.
+  final List<OdevKitabi> kitaplar;
+  final String sayfa;
   final bool done;
   final DateTime? doneAt;
   final String doneBy;
@@ -151,8 +181,24 @@ class Homework {
       createdBy: _str(m['createdBy']),
       createdByName: _str(m['createdByName']),
       createdAt: _ts(m['createdAt']),
+      kitaplar: m['kitaplar'] is List
+          ? (m['kitaplar'] as List).whereType<Map>().map(OdevKitabi.fromMap).toList()
+          : const [],
+      sayfa: _str(m['sayfa']),
     );
   }
+}
+
+/// Ödevde seçilen kitap (test kitabı ya da okuma kitabı).
+class OdevKitabi {
+  const OdevKitabi({required this.id, required this.tur, required this.ad});
+  final String id;
+  final String tur; // 'test' | 'okuma'
+  final String ad;
+
+  Map<String, dynamic> toMap() => {'id': id, 'tur': tur, 'ad': ad};
+  factory OdevKitabi.fromMap(Map m) => OdevKitabi(
+      id: _str(m['id']), tur: _str(m['tur']), ad: _str(m['ad']));
 }
 
 // ---------------------------------------------------------------------------
@@ -167,9 +213,14 @@ class Book {
     required this.currentPage,
     required this.finished,
     required this.createdBy,
+    this.durum = '',
   });
 
   final String id;
+  final String durum;
+
+  /// 'istek' (almayı düşündüklerim), 'devam' ya da 'bitti'
+  String get durumu => durum.isNotEmpty ? durum : (finished ? 'bitti' : 'devam');
   final String title;
   final String author;
   final int totalPages;
@@ -190,6 +241,7 @@ class Book {
       currentPage: _int(m['currentPage']),
       finished: m['finished'] == true,
       createdBy: _str(m['createdBy']),
+      durum: _str(m['durum']),
     );
   }
 }
@@ -268,9 +320,16 @@ class TestBook {
     required this.solvedPages,
     required this.completedTopics,
     required this.createdBy,
+    this.isbn = '',
+    this.durum = '',
   });
 
   final String id;
+  final String isbn;
+  final String durum;
+
+  /// 'istek' (almayı düşündüklerim), 'devam' ya da 'bitti'
+  String get durumu => durum.isNotEmpty ? durum : (progress >= 1 ? 'bitti' : 'devam');
   final String title;
   final String publisher;
   final String subject;
@@ -313,6 +372,8 @@ class TestBook {
           : <int>{},
       completedTopics: _strList(m['completedTopics']).toSet(),
       createdBy: _str(m['createdBy']),
+      isbn: _str(m['isbn']),
+      durum: _str(m['durum']),
     );
   }
 }
@@ -363,3 +424,10 @@ class TestResult {
     );
   }
 }
+
+/// Kitaplık durumları.
+const kitapDurumlari = <String, String>{
+  'istek': 'Almayı düşündüklerim',
+  'devam': 'Devam edenler',
+  'bitti': 'Tamamlananlar',
+};

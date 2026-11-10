@@ -10,6 +10,22 @@ import '../models.dart';
 // ---------------------------------------------------------------------------
 // Sabitler
 // ---------------------------------------------------------------------------
+/// Açık öğrencinin kendi seçtiği dersler (boşsa genel liste kullanılır).
+class DersAyari {
+  DersAyari._();
+  static List<String> aktif = const [];
+
+  /// Açık olan öğrencinin sınıfı ve hedef sınavı (hazır kitap listeleri buna göre süzülür).
+  static String sinif = '';
+  static String hedef = '';
+  static List<String> secenekler([String? mevcut]) {
+    final l = aktif.isEmpty ? subjects : [...aktif, 'Genel / Karma', 'Diğer'];
+    return [
+      ...{...l, if (mevcut != null && mevcut.isNotEmpty) mevcut},
+    ];
+  }
+}
+
 const subjects = <String>[
   'Türkçe',
   'Matematik',
@@ -45,7 +61,18 @@ const grades = <String>[
   '11. Sınıf',
   '12. Sınıf',
   'Mezun',
+  'Üniversite Öğrencisi',
+  'Üniversite Mezunu',
 ];
+
+/// 8. sınıf ve altı mı (LGS dönemi)?
+bool ortaokulVeAlti(String g) {
+  final i = grades.indexOf(g);
+  return i >= 0 && i <= grades.indexOf('8. Sınıf');
+}
+
+/// Okula gitmeyen (mezun / üniversite) mi?
+bool okulDisi(String g) => g == 'Mezun' || g.startsWith('Üniversite');
 
 IconData roleIcon(UserRole r) => switch (r) {
       UserRole.parent => Icons.family_restroom,
@@ -378,7 +405,8 @@ class SheetFrame extends StatelessWidget {
       padding:
           EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
       child: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+        padding: EdgeInsets.fromLTRB(
+            20, 8, 20, 24 + MediaQuery.viewPaddingOf(context).bottom),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -420,7 +448,7 @@ class SubjectDropdown extends StatelessWidget {
       value: value,
       isExpanded: true,
       decoration: InputDecoration(labelText: label),
-      items: subjects
+      items: DersAyari.secenekler(value)
           .map((s) => DropdownMenuItem(value: s, child: Text(s)))
           .toList(),
       onChanged: onChanged,
@@ -436,15 +464,15 @@ class LogoutButton extends StatelessWidget {
     return IconButton(
       tooltip: 'Çıkış yap',
       icon: const Icon(Icons.logout),
-      onPressed: () async {
-        final ok = await confirm(context,
-            title: 'Çıkış yap',
-            message: 'Hesabınızdan çıkmak istiyor musunuz?',
-            ok: 'Çıkış yap');
-        if (!ok || !context.mounted) return;
-        Navigator.of(context).popUntil((r) => r.isFirst);
-        await FirebaseAuth.instance.signOut();
-      },
+      onPressed: () => cikisYap(context),
     );
   }
+}
+
+Future<void> cikisYap(BuildContext context) async {
+  final ok = await confirm(context,
+      title: 'Çıkış yap', message: 'Hesabınızdan çıkmak istiyor musunuz?', ok: 'Çıkış yap');
+  if (!ok || !context.mounted) return;
+  Navigator.of(context).popUntil((r) => r.isFirst);
+  await FirebaseAuth.instance.signOut();
 }

@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 
 import '../../models.dart';
 import '../../services/db.dart';
+import '../../services/kitap_katalog.dart';
 import '../../widgets/common.dart';
+import '../../widgets/kitap_bulucu.dart';
+import '../../widgets/kitaplik.dart';
 
 /// KİTAP OKUMA MODÜLÜ
 /// Kitap eklenir; öğrenci her gün "Okudum" deyip kaç sayfa okuduğunu yazar.
@@ -21,6 +24,7 @@ class _BooksTabState extends State<BooksTab> {
       LiveValue(Db.books(widget.student.id));
   late final LiveValue<List<ReadingLog>> _logs =
       LiveValue(Db.readingLogs(widget.student.id));
+  String _durum = 'devam';
 
   @override
   void dispose() {
@@ -42,8 +46,12 @@ class _BooksTabState extends State<BooksTab> {
           if (_books.loading) return const Loading();
           final books = _books.value!;
           final logs = _logs.value ?? const <ReadingLog>[];
-          final reading = books.where((b) => !b.finished).toList();
-          final finished = books.where((b) => b.finished).toList();
+          final finished = books.where((b) => b.durumu == 'bitti').toList();
+          final sayilar = <String, int>{};
+          for (final b in books) {
+            sayilar[b.durumu] = (sayilar[b.durumu] ?? 0) + 1;
+          }
+          final secili = books.where((b) => b.durumu == _durum).toList();
 
           final start = today().subtract(const Duration(days: 6));
           final week = logs.where((l) => l.date != null && !l.date!.isBefore(start));
@@ -79,19 +87,30 @@ class _BooksTabState extends State<BooksTab> {
                   ],
                 ),
               ),
-              const SectionTitle('Okunan kitaplar'),
-              if (reading.isEmpty)
-                const EmptyState(
-                    icon: Icons.menu_book_outlined,
-                    text: 'Şu an okunan kitap yok.\n"Kitap Ekle" ile yeni kitap ekleyin.')
+              const SizedBox(height: 12),
+              DurumSecici(
+                secili: _durum,
+                sayilar: sayilar,
+                degisti: (d) => setState(() => _durum = d),
+              ),
+              const SizedBox(height: 8),
+              if (secili.isEmpty)
+                EmptyState(
+                  icon: _durum == 'istek'
+                      ? Icons.bookmark_add_outlined
+                      : (_durum == 'bitti'
+                          ? Icons.emoji_events_outlined
+                          : Icons.menu_book_outlined),
+                  text: switch (_durum) {
+                    'istek' =>
+                      'Almak istediğin kitapları buraya ekle.\n"Kitap Ekle"de "Henüz almadım"ı seç.',
+                    'bitti' => 'Henüz bitirilen kitap yok.',
+                    _ => 'Şu an okunan kitap yok.\n"Kitap Ekle" ile yeni kitap ekleyin.',
+                  },
+                )
               else
-                ...reading.map((b) => _BookCard(
+                ...secili.map((b) => _BookCard(
                     student: widget.student, me: widget.me, book: b)),
-              if (finished.isNotEmpty) ...[
-                const SectionTitle('Bitirilen kitaplar'),
-                ...finished.map((b) => _BookCard(
-                    student: widget.student, me: widget.me, book: b)),
-              ],
             ],
           );
         },
@@ -149,9 +168,12 @@ class _BookCard extends StatelessWidget {
                   ),
                   PopupMenuButton<String>(
                     onSelected: (v) async {
-                      if (v == 'finish') {
-                        await runSafe(context,
-                            () => Db.setBookFinished(student.id, book, !book.finished));
+                      if (v.startsWith('durum:')) {
+                        await runSafe(
+                            context,
+                            () => Db.setDurum(
+                                student.id, 'books', book.id, v.substring(6),
+                                book: book));
                       } else if (v == 'delete') {
                         final ok = await confirm(context,
                             title: 'Kitap silinsin mi?',
@@ -164,11 +186,7 @@ class _BookCard extends StatelessWidget {
                       }
                     },
                     itemBuilder: (_) => [
-                      PopupMenuItem(
-                          value: 'finish',
-                          child: Text(book.finished
-                              ? 'Okunuyor olarak işaretle'
-                              : 'Bitti olarak işaretle')),
+                      ...durumMenuOgeleri(book.durumu),
                       if (canDelete)
                         const PopupMenuItem(value: 'delete', child: Text('Sil')),
                     ],
@@ -190,7 +208,19 @@ class _BookCard extends StatelessWidget {
                     Text(book.totalPages > 0
                         ? 'Sayfa ${book.currentPage} / ${book.totalPages}  (%${(book.progress * 100).round()})'
                         : 'Okunan: ${book.currentPage} sayfa'),
-                    if (!book.finished) ...[
+                    if (book.durumu == 'istek') ...[
+                      const SizedBox(height: 8),
+                      FilledButton.tonalIcon(
+                        style: FilledButton.styleFrom(
+                            minimumSize: const Size.fromHeight(46)),
+                        onPressed: () => runSafe(
+                            context,
+                            () => Db.setDurum(student.id, 'books', book.id, 'devam'),
+                            success: 'İyi okumalar! Kitap "Devam edenler"e taşındı.'),
+                        icon: const Icon(Icons.play_arrow_rounded),
+                        label: const Text('Okumaya başla'),
+                      ),
+                    ] else if (!book.finished) ...[
                       const SizedBox(height: 8),
                       FilledButton.icon(
                         style: FilledButton.styleFrom(
@@ -376,6 +406,9 @@ class _AddBookSheetState extends State<_AddBookSheet> {
   final _author = TextEditingController();
   final _pages = TextEditingController();
   bool _busy = false;
+  String _isbn = '';
+  String _publisher = '';
+  bool _istek = false;
 
   @override
   void dispose() {
@@ -385,23 +418,52 @@ class _AddBookSheetState extends State<_AddBookSheet> {
     super.dispose();
   }
 
+  /// Barkoddan / aramadan gelen kitap: formu doldurur, bilgiler tamsa kaydeder.
+  void _kitapSecildi(KatalogKitap k) {
+    setState(() {
+      _isbn = k.isbn;
+      _publisher = k.publisher;
+      if (k.title.isNotEmpty) _title.text = k.title;
+      if (k.author.isNotEmpty) _author.text = k.author;
+      if (k.totalPages > 0) _pages.text = '${k.totalPages}';
+    });
+    if (k.title.isNotEmpty && k.totalPages > 0) {
+      _save();
+    } else if (k.title.isEmpty) {
+      kayitsizKitapUyarisi(context, k.isbn, testKitabi: false);
+    } else {
+      showInfo(context, 'Sayfa sayısı bulunamadı. Sayfa sayısını yazıp kaydedin.');
+    }
+  }
+
   Future<void> _save() async {
+    if (_busy) return;
     final title = _title.text.trim();
     if (title.isEmpty) {
       showInfo(context, 'Kitabın adını yazın.');
       return;
     }
+    final author = _author.text.trim();
+    final pages = parseInt(_pages.text) ?? 0;
     setState(() => _busy = true);
     final nav = Navigator.of(context);
     final ok = await runSafe(
       context,
       () => Db.addBook(widget.student.id, widget.me,
           title: title,
-          author: _author.text.trim(),
-          totalPages: parseInt(_pages.text) ?? 0),
-      success: 'Kitap eklendi.',
+          author: author,
+          totalPages: pages,
+          isbn: _isbn,
+          durum: _istek ? 'istek' : 'devam'),
+      success: 'Kitap eklendi: $title',
     );
     if (ok) {
+      KitapKatalog.kaydet(KatalogKitap(
+          isbn: _isbn,
+          title: title,
+          author: author,
+          publisher: _publisher,
+          totalPages: pages));
       nav.pop();
     } else if (mounted) {
       setState(() => _busy = false);
@@ -413,9 +475,10 @@ class _AddBookSheetState extends State<_AddBookSheet> {
     return SheetFrame(
       title: 'Yeni kitap',
       children: [
+        KitapBulucu(onSecildi: _kitapSecildi),
+        const SizedBox(height: 16),
         TextField(
           controller: _title,
-          autofocus: true,
           textCapitalization: TextCapitalization.words,
           decoration: const InputDecoration(labelText: 'Kitabın adı'),
         ),
@@ -431,7 +494,14 @@ class _AddBookSheetState extends State<_AddBookSheet> {
           keyboardType: TextInputType.number,
           decoration: const InputDecoration(labelText: 'Toplam sayfa sayısı'),
         ),
-        const SizedBox(height: 16),
+        SwitchListTile(
+          contentPadding: EdgeInsets.zero,
+          value: _istek,
+          onChanged: (v) => setState(() => _istek = v),
+          title: const Text('Henüz almadım'),
+          subtitle: const Text('"Almayı düşündüklerim" listesine ekle'),
+        ),
+        const SizedBox(height: 8),
         FilledButton(
           style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
           onPressed: _busy ? null : _save,

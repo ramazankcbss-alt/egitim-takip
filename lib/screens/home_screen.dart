@@ -2,8 +2,12 @@ import 'package:flutter/material.dart';
 
 import '../models.dart';
 import '../services/db.dart';
-import '../services/yedek.dart';
+import '../services/guncelleme.dart';
+import '../services/notifications.dart';
+import '../services/sms_aktarici.dart';
 import '../widgets/common.dart';
+import '../widgets/hesap_turu.dart';
+import 'ogrenci_profil.dart';
 import 'student_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -15,13 +19,38 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   late Stream<List<Student>> _stream;
+  late OdevIzleyici _izleyici;
 
   @override
   void initState() {
     super.initState();
     _stream = Db.myStudents(widget.me);
+    _izleyici = OdevIzleyici(widget.me)..baslat();
+    WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await Bildirim.izinIste();
+      if (mounted) await Guncelleme.kontrolEt(context);
+      if (mounted) await _smsTara();
+    });
+  }
+
+  /// Kurum SMS'lerindeki yeni deneme sonuçlarını sessizce ekler.
+  Future<void> _smsTara() async {
+    final eklenen = await SmsAktarici.tara(widget.me);
+    if (eklenen.isNotEmpty && mounted) {
+      showInfo(
+          context,
+          eklenen.length == 1
+              ? 'Yeni deneme eklendi: ${eklenen.first}'
+              : '${eklenen.length} yeni deneme sonucu eklendi.');
+    }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) _smsTara();
   }
 
   @override
@@ -29,7 +58,16 @@ class _HomeScreenState extends State<HomeScreen> {
     super.didUpdateWidget(old);
     if (old.me.uid != widget.me.uid || old.me.role != widget.me.role) {
       _stream = Db.myStudents(widget.me);
+      _izleyici.durdur();
+      _izleyici = OdevIzleyici(widget.me)..baslat();
     }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _izleyici.durdur();
+    super.dispose();
   }
 
   AppUser get me => widget.me;
@@ -70,20 +108,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  bool _yedekleniyor = false;
-
-  Future<void> _yedekle() async {
-    if (_yedekleniyor) return;
-    _yedekleniyor = true;
-    showInfo(context,
-        'Yedek hazırlanıyor… Açılan ekranda "Drive\'a kaydet"i seçin.');
-    try {
-      await runSafe(context, () => Yedek.yedekleVePaylas(me));
-    } finally {
-      _yedekleniyor = false;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<List<Student>>(
@@ -104,8 +128,73 @@ class _HomeScreenState extends State<HomeScreen> {
         } else if (snap.hasError) {
           body = EmptyState(
               icon: Icons.error_outline, text: errorText(snap.error!));
+        } else if (list.isEmpty && me.role == UserRole.student) {
+          body = ListView(
+            padding: const EdgeInsets.all(20),
+            children: [
+              const SizedBox(height: 24),
+              Icon(Icons.school_outlined, size: 72, color: Theme.of(context).colorScheme.primary),
+              const SizedBox(height: 16),
+              Text('Hoş geldin ${me.name}!',
+                  textAlign: TextAlign.center, style: Theme.of(context).textTheme.titleLarge),
+              const SizedBox(height: 24),
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const Text('Kendi başıma kullanacağım',
+                          style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+                      const SizedBox(height: 4),
+                      const Text('YKS, KPSS, AGS ya da LGS hazırlığını kendin takip et. '
+                          'ÖSYM sonuçlarını aktar, konu eksiklerini gör. İstersen sonra '
+                          'koçunu ya da velini davet kodunla eklersin.'),
+                      const SizedBox(height: 12),
+                      FilledButton.icon(
+                        onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                            builder: (_) => OgrenciProfilOlusturEkrani(me: me))),
+                        icon: const Icon(Icons.person_add_alt_1),
+                        label: const Text('Kendi profilimi oluştur'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const Text('Velim / öğretmenim beni ekledi',
+                          style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+                      const SizedBox(height: 4),
+                      const Text('Velinden ya da öğretmeninden aldığın 6 haneli davet koduyla katıl.'),
+                      const SizedBox(height: 12),
+                      OutlinedButton.icon(
+                        onPressed: _join,
+                        icon: const Icon(Icons.vpn_key_outlined),
+                        label: const Text('Kodla katıl'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          );
         } else if (list.isEmpty) {
-          body = EmptyState(icon: Icons.groups_outlined, text: _emptyText);
+          body = ListView(
+            padding: const EdgeInsets.fromLTRB(16, 40, 16, 96),
+            children: [
+              Icon(Icons.groups_outlined,
+                  size: 64, color: Theme.of(context).colorScheme.outline),
+              const SizedBox(height: 12),
+              Text(_emptyText, textAlign: TextAlign.center),
+              const SizedBox(height: 24),
+              _KendimKarti(me: me),
+            ],
+          );
         } else {
           body = ListView(
             padding: const EdgeInsets.fromLTRB(12, 12, 12, 96),
@@ -119,6 +208,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     student: s,
                     onTap: () => _openStudent(s),
                   )),
+              if (me.role != UserRole.student && !list.any((s) => s.studentUid == me.uid)) ...[
+                const SizedBox(height: 12),
+                _KendimKarti(me: me),
+              ],
             ],
           );
         }
@@ -133,12 +226,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   icon: const Icon(Icons.vpn_key_outlined),
                   onPressed: _join,
                 ),
-              IconButton(
-                tooltip: 'Verileri yedekle (Drive)',
-                icon: const Icon(Icons.backup_outlined),
-                onPressed: _yedekle,
-              ),
-              const LogoutButton(),
+              HesapMenusu(me: me),
             ],
           ),
           body: body,
@@ -347,6 +435,51 @@ class _JoinDialogState extends State<_JoinDialog> {
         FilledButton(
             onPressed: _busy ? null : _join, child: const Text('Katıl')),
       ],
+    );
+  }
+}
+
+/// Veli / öğretmen hesabıyla kendini de (bireysel öğrenci olarak) takip etme.
+class _KendimKarti extends StatelessWidget {
+  const _KendimKarti({required this.me});
+  final AppUser me;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Card(
+      color: cs.secondaryContainer,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => OgrenciProfilOlusturEkrani(me: me))),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              CircleAvatar(
+                backgroundColor: cs.secondary,
+                child: Icon(Icons.self_improvement, color: cs.onSecondary),
+              ),
+              const SizedBox(width: 14),
+              const Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Kendimi de takip etmek istiyorum',
+                        style: TextStyle(fontWeight: FontWeight.w800, fontSize: 15.5)),
+                    SizedBox(height: 2),
+                    Text('KPSS, AGS, YKS ya da başka bir sınava hazırlanıyorsanız kendi '
+                        'çalışmanızı, denemelerinizi ve ÖSYM sonuçlarınızı takip edin.',
+                        style: TextStyle(fontSize: 13)),
+                  ],
+                ),
+              ),
+              const Icon(Icons.chevron_right),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

@@ -4,9 +4,19 @@ import 'package:flutter/services.dart';
 import '../models.dart';
 import '../services/db.dart';
 import '../widgets/common.dart';
+import '../widgets/hesap_turu.dart';
 import 'modules/books_tab.dart';
+import 'ogrenci_profil.dart';
 import 'modules/homework_tab.dart';
+import 'modules/lgs_tab.dart';
+import 'modules/okul_tab.dart';
+import 'modules/oneriler_tab.dart';
+import 'modules/ags_tab.dart';
+import 'modules/osym_tab.dart';
 import 'modules/overview_tab.dart';
+import 'modules/plan_tab.dart';
+import 'modules/program_tab.dart';
+import 'modules/soru_takibi_tab.dart';
 import 'modules/test_books_tab.dart';
 import 'modules/tests_tab.dart';
 
@@ -40,7 +50,7 @@ class _StudentScreenState extends State<StudentScreen> {
       builder: (context, snap) {
         if (snap.hasError) {
           return Scaffold(
-            appBar: AppBar(actions: [if (widget.isRoot) const LogoutButton()]),
+            appBar: AppBar(actions: [if (widget.isRoot) HesapMenusu(me: widget.me)]),
             body: const EmptyState(
                 icon: Icons.lock_outline,
                 text: 'Bu öğrenciye erişiminiz yok ya da bağlantınız kaldırıldı.'),
@@ -52,13 +62,55 @@ class _StudentScreenState extends State<StudentScreen> {
         final s = snap.data;
         if (s == null) {
           return Scaffold(
-            appBar: AppBar(actions: [if (widget.isRoot) const LogoutButton()]),
+            appBar: AppBar(actions: [if (widget.isRoot) HesapMenusu(me: widget.me)]),
             body: const EmptyState(
                 icon: Icons.person_off_outlined, text: 'Öğrenci bulunamadı.'),
           );
         }
+        // Hedef sınav: öğrencinin seçimi, yoksa sınıfına göre tahmin
+        final hedef = s.hedefSinav.isNotEmpty
+            ? s.hedefSinav
+            : (ortaokulVeAlti(s.grade) ? (s.grade == '8. Sınıf' ? 'LGS' : 'okul') : 'YKS');
+        final lgs = hedef == 'LGS' ||
+            (s.hedefSinav.isEmpty && ortaokulVeAlti(s.grade) && !okulDisi(s.grade));
+        final osym = const ['YKS', 'KPSS', 'AGS'].contains(hedef) ||
+            (s.hedefSinav.isEmpty && !ortaokulVeAlti(s.grade));
+        final gizli = s.gizliSekmeler.toSet();
+        DersAyari.aktif = s.dersler;
+        DersAyari.sinif = s.grade;
+        DersAyari.hedef = hedef;
+        bool acik(String id) => !gizli.contains(id);
+        final sekmeler = <(Tab, Widget)>[
+          (const Tab(icon: Icon(Icons.dashboard_outlined), text: 'Özet'), OverviewTab(student: s, me: me)),
+          if (acik('oneriler'))
+            (const Tab(icon: Icon(Icons.tips_and_updates_outlined), text: 'Önerilerim'), OnerilerTab(student: s, me: me)),
+          if (osym)
+            (const Tab(icon: Icon(Icons.workspace_premium_outlined), text: 'ÖSYM Sınavları'),
+                OsymTab(student: s, me: me, varsayilanGrup: const ['YKS', 'KPSS', 'AGS'].contains(hedef) ? hedef : null)),
+          if (hedef == 'AGS' && acik('ags'))
+            (const Tab(icon: Icon(Icons.local_fire_department_outlined), text: 'AGS Hazırlık'), AgsTab(student: s, me: me)),
+          if (lgs)
+            (const Tab(icon: Icon(Icons.flag_outlined), text: 'LGS Deneme'), LgsTab(student: s, me: me)),
+          if (acik('odevler'))
+            (const Tab(icon: Icon(Icons.assignment_outlined), text: 'Ödevler'), HomeworkTab(student: s, me: me)),
+          if (acik('plan'))
+            (const Tab(icon: Icon(Icons.calendar_month_outlined), text: 'Plan'), PlanTab(student: s, me: me)),
+          if (acik('program'))
+            (const Tab(icon: Icon(Icons.schedule), text: 'Program'), ProgramTab(student: s, me: me)),
+          if (acik('soru'))
+            (const Tab(icon: Icon(Icons.edit_note), text: 'Soru Takibi'), SoruTakibiTab(student: s, me: me)),
+          if (!okulDisi(s.grade) && acik('okul'))
+            (const Tab(icon: Icon(Icons.school_outlined), text: 'Okul'), OkulTab(student: s, me: me)),
+          if (acik('kitaplar'))
+            (const Tab(icon: Icon(Icons.menu_book_outlined), text: 'Kitaplar'), BooksTab(student: s, me: me)),
+          if (acik('testkitaplari'))
+            (const Tab(icon: Icon(Icons.library_books_outlined), text: 'Test Kitapları'), TestBooksTab(student: s, me: me)),
+          if (acik('testler'))
+            (const Tab(icon: Icon(Icons.quiz_outlined), text: 'Testler'), TestsTab(student: s, me: me)),
+        ];
         return DefaultTabController(
-          length: 5,
+          key: ValueKey(sekmeler.map((x) => x.$1.text).join('|')),
+          length: sekmeler.length,
           child: Scaffold(
             appBar: AppBar(
               automaticallyImplyLeading: !widget.isRoot,
@@ -66,38 +118,38 @@ class _StudentScreenState extends State<StudentScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(s.name),
-                  Text(s.grade, style: Theme.of(context).textTheme.bodySmall),
+                  Text(
+                      [
+                        s.grade,
+                        if (hedef != 'okul') hedef + (s.alan.isEmpty ? '' : ' ${s.alan}'),
+                        if (s.yas != null) '${s.yas} yaş',
+                      ].join(' • '),
+                      style: Theme.of(context).textTheme.bodySmall),
                 ],
               ),
               actions: [
+                if (s.isParent(me.uid))
+                  IconButton(
+                    tooltip: 'Sınav, dersler ve bölümler',
+                    icon: const Icon(Icons.tune),
+                    onPressed: () => openSheet<void>(context, OgrenciAyarSheet(student: s)),
+                  ),
                 IconButton(
                   tooltip: 'Kişiler ve davet kodu',
                   icon: const Icon(Icons.group_outlined),
                   onPressed: () =>
                       openSheet<void>(context, StudentInfoSheet(student: s, me: me)),
                 ),
-                if (widget.isRoot) const LogoutButton(),
+                if (widget.isRoot) HesapMenusu(me: widget.me),
               ],
-              bottom: const TabBar(
+              bottom: TabBar(
                 isScrollable: true,
                 tabAlignment: TabAlignment.start,
-                tabs: [
-                  Tab(icon: Icon(Icons.dashboard_outlined), text: 'Özet'),
-                  Tab(icon: Icon(Icons.assignment_outlined), text: 'Ödevler'),
-                  Tab(icon: Icon(Icons.menu_book_outlined), text: 'Kitaplar'),
-                  Tab(icon: Icon(Icons.library_books_outlined), text: 'Test Kitapları'),
-                  Tab(icon: Icon(Icons.quiz_outlined), text: 'Denemeler'),
-                ],
+                tabs: [for (final x in sekmeler) x.$1],
               ),
             ),
             body: TabBarView(
-              children: [
-                OverviewTab(student: s, me: me),
-                HomeworkTab(student: s, me: me),
-                BooksTab(student: s, me: me),
-                TestBooksTab(student: s, me: me),
-                TestsTab(student: s, me: me),
-              ],
+              children: [for (final x in sekmeler) x.$2],
             ),
           ),
         );
@@ -208,7 +260,7 @@ class _StudentInfoSheetState extends State<StudentInfoSheet> {
     return SheetFrame(
       title: s.name,
       children: [
-        if (me.role.isAdult) ...[
+        if (me.role.isAdult || s.isParent(me.uid)) ...[
           Card(
             color: cs.primaryContainer,
             child: Padding(

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -38,6 +39,14 @@ class Db {
     'readingLogs',
     'testBooks',
     'testResults',
+    'soruGirisleri',
+    'lgsDenemeleri',
+    'haftalikPlan',
+    'ayarlar',
+    'okulSinavlari',
+    'yilSonuNotlari',
+    'programEtkinlikleri',
+    'osymSinavlari',
   ];
 
   // -------------------------------------------------------------------------
@@ -61,6 +70,10 @@ class Db {
         'createdAt': _now(),
       });
 
+  /// Hesap türünü (rolü) ve adı değiştirir.
+  static Future<void> updateRole(String uid, UserRole role) =>
+      _users.doc(uid).update({'role': role.name, 'updatedAt': _now()});
+
   static Future<List<AppUser>> getUsers(Iterable<String> uids) async {
     final out = <AppUser>[];
     for (final id in uids.toSet()) {
@@ -79,11 +92,38 @@ class Db {
       UserRole.teacher => _students.where('teacherIds', arrayContains: me.uid),
       UserRole.student => _students.where('studentUid', isEqualTo: me.uid),
     };
-    return q.snapshots().map((s) {
-      final list = s.docs.map(Student.fromDoc).toList();
-      list.sort((a, b) => a.name.compareTo(b.name));
-      return list;
-    });
+    List<Student> liste(QuerySnapshot<Map<String, dynamic>> s) =>
+        s.docs.map(Student.fromDoc).toList();
+    if (me.role != UserRole.teacher) {
+      return q.snapshots().map((s) => liste(s)..sort((a, b) => a.name.compareTo(b.name)));
+    }
+    // Öğretmen: öğrencileri + kendi (bireysel) profili
+    final kendi = _students.where('studentUid', isEqualTo: me.uid);
+    late StreamController<List<Student>> c;
+    StreamSubscription<QuerySnapshot<Map<String, dynamic>>>? a, b;
+    var la = <Student>[], lb = <Student>[];
+    void yay() {
+      final m = <String, Student>{for (final s in [...lb, ...la]) s.id: s};
+      c.add(m.values.toList()..sort((x, y) => x.name.compareTo(y.name)));
+    }
+
+    c = StreamController<List<Student>>(
+      onListen: () {
+        a = q.snapshots().listen((s) {
+          la = liste(s);
+          yay();
+        }, onError: c.addError);
+        b = kendi.snapshots().listen((s) {
+          lb = liste(s);
+          yay();
+        }, onError: c.addError);
+      },
+      onCancel: () async {
+        await a?.cancel();
+        await b?.cancel();
+      },
+    );
+    return c.stream;
   }
 
   static Stream<Student?> studentStream(String sid) => _students
@@ -133,6 +173,42 @@ class Db {
     });
     await _newParentCode(me, ref.id);
   }
+
+  /// Öğrencinin kendi başına açtığı profil (YKS / KPSS / AGS hazırlığı).
+  /// Öğrenci hem profilin sahibi hem de öğrencisidir; isterse davet koduyla
+  /// koçunu, öğretmenini ya da velisini ekleyebilir.
+  static Future<void> createOwnProfile(
+    AppUser me, {
+    required String name,
+    required String grade,
+    Map<String, Object?> ayarlar = const {},
+  }) async {
+    final code = await _freeCode();
+    final ref = _students.doc();
+    await ref.set({
+      ...ayarlar,
+      'name': name,
+      'grade': grade,
+      'parentIds': [me.uid],
+      'teacherIds': <String>[],
+      'studentUid': me.uid,
+      'inviteCode': code,
+      'bireysel': true,
+      'createdBy': me.uid,
+      'createdAt': _now(),
+    });
+    await _invites.doc(code).set({
+      'studentId': ref.id,
+      'kind': 'member',
+      'createdBy': me.uid,
+      'createdAt': _now(),
+    });
+    await _newParentCode(me, ref.id);
+  }
+
+  /// Hedef sınav, alan, doğum yılı, dersler, gizli sekmeler.
+  static Future<void> updateStudentAyarlar(String sid, Map<String, Object?> ayarlar) =>
+      _students.doc(sid).update(ayarlar);
 
   static Future<void> updateStudent(String sid,
           {required String name, required String grade}) =>
@@ -311,11 +387,15 @@ class Db {
     required String subject,
     required String description,
     DateTime? dueDate,
+    List<OdevKitabi> kitaplar = const [],
+    String sayfa = '',
   }) =>
       _sub(sid, 'homeworks').add({
         'title': title,
         'subject': subject,
         'description': description,
+        if (kitaplar.isNotEmpty) 'kitaplar': kitaplar.map((k) => k.toMap()).toList(),
+        if (sayfa.isNotEmpty) 'sayfa': sayfa,
         'dueDate': dueDate == null ? null : Timestamp.fromDate(dueDate),
         'done': false,
         'doneAt': null,
@@ -367,8 +447,12 @@ class Db {
     required String title,
     required String author,
     required int totalPages,
+    String isbn = '',
+    String durum = 'devam',
   }) =>
       _sub(sid, 'books').add({
+        if (isbn.isNotEmpty) 'isbn': isbn,
+        'durum': durum,
         'title': title,
         'author': author,
         'totalPages': totalPages,
@@ -424,14 +508,26 @@ class Db {
     batch.update(_sub(sid, 'books').doc(book.id), {
       'currentPage': toPage,
       'finished': book.totalPages > 0 && toPage >= book.totalPages,
+      'durum': book.totalPages > 0 && toPage >= book.totalPages ? 'bitti' : 'devam',
       'updatedAt': _now(),
     });
     await batch.commit();
   }
 
+  /// Kitabın kitaplık durumunu değiştirir (istek / devam / bitti).
+  static Future<void> setDurum(String sid, String coll, String id, String durum,
+          {Book? book}) =>
+      _sub(sid, coll).doc(id).update({
+        'durum': durum,
+        if (coll == 'books') 'finished': durum == 'bitti',
+        if (book != null && durum == 'bitti' && book.totalPages > 0)
+          'currentPage': book.totalPages,
+      });
+
   static Future<void> setBookFinished(String sid, Book book, bool finished) =>
       _sub(sid, 'books').doc(book.id).update({
         'finished': finished,
+        'durum': finished ? 'bitti' : 'devam',
         if (finished && book.totalPages > 0) 'currentPage': book.totalPages,
       });
 
@@ -457,8 +553,12 @@ class Db {
     required String subject,
     required int totalPages,
     required List<Topic> topics,
+    String isbn = '',
+    String durum = 'devam',
   }) =>
       _sub(sid, 'testBooks').add({
+        if (isbn.isNotEmpty) 'isbn': isbn,
+        'durum': durum,
         'title': title,
         'publisher': publisher,
         'subject': subject,

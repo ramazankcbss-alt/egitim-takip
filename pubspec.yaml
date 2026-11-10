@@ -15,8 +15,14 @@ dependencies:
   firebase_auth: ^5.3.1
   cloud_firestore: ^5.4.4
   intl: any
-  path_provider: ^2.1.5
-  share_plus: ^11.0.0
+  flutter_local_notifications: ^22.3.0
+  timezone: any
+  mobile_scanner: ^7.1.0
+  http: ^1.2.0
+  ota_update: ^7.1.0
+  image_picker: ^1.2.0
+  google_mlkit_text_recognition: ^1.0.0
+  webview_flutter: ^4.10.0
 
 dev_dependencies:
   flutter_test:
@@ -25,3 +31,9 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/kitaplar.json
+    - assets/meb_kitaplari.json
+    - assets/tonguc_kitaplari.json
+    - assets/ags_icerik.json
+    - assets/ags_kitaplari.json

@@ -2,13 +2,23 @@ name: APK Derle
 
 # Kod her güncellendiğinde (ya da Actions sekmesinden elle) APK derlenir
 # ve "Releases" bölümüne indirilebilir dosya olarak konur.
+#
+# Depo ayarı gereği tüm eklentiler tam commit SHA ile sabitlenmiştir.
 on:
   push:
     branches: [main]
+    # Günlük deneme içerikleri yeni sürüm derlemez
+    paths-ignore:
+      - 'icerik/**'
   workflow_dispatch:
 
 permissions:
   contents: write
+
+env:
+  # İmza anahtarının (ci/egitim-takip.p12) şifresi:
+  # Settings → Secrets and variables → Actions → EGITIM_KEYSTORE_PASSWORD
+  EGITIM_KEYSTORE_PASSWORD: ${{ secrets.EGITIM_KEYSTORE_PASSWORD }}
 
 jobs:
   build:
@@ -27,64 +37,48 @@ jobs:
           echo "$RUNNER_TEMP/flutter/bin" >> "$GITHUB_PATH"
           "$RUNNER_TEMP/flutter/bin/flutter" --version
 
+      - name: Sürüm numarası
+        # Eski hesaptaki sürümlerin (en son 36) ve telefondakilerin üzerine
+        # kurulabilmesi için numara 1000'den başlar.
+        run: echo "SURUM=$((1000 + ${{ github.run_number }}))" >> "$GITHUB_ENV"
+
       - name: Android proje dosyalarını oluştur
         run: flutter create --platforms=android --org com.egitimtakip --project-name egitim_takip .
 
-      - name: Android ayarları (minSdk, uygulama adı)
+      - name: Android ayarları (minSdk 24, uygulama adı, izinler, imza anahtarı)
         run: |
-          for f in android/app/build.gradle.kts android/app/build.gradle; do
-            [ -f "$f" ] && sed -i -E 's/minSdk(Version)? *=? *flutter\.minSdkVersion/minSdk = 24/' "$f"
-          done
-          sed -i -E 's/android:label="[^"]*"/android:label="Eğitim Takip"/' android/app/src/main/AndroidManifest.xml
-          grep -n "minSdk" android/app/build.gradle* || true
-
-      # İmza anahtarı depoda şifreli durur (ci/imza.keystore.enc).
-      # Şifresi GitHub'da Settings > Secrets and variables > Actions altında
-      # EGITIM_KEYSTORE_PASSWORD adıyla kayıtlıdır. Her derleme aynı anahtarla
-      # imzalanır, böylece yeni sürümler eskisinin üzerine kurulabilir.
-      - name: İmza anahtarını hazırla
-        env:
-          KEYSTORE_PASSWORD: ${{ secrets.EGITIM_KEYSTORE_PASSWORD }}
-        run: |
-          if [ -z "$KEYSTORE_PASSWORD" ]; then
-            echo "::error::EGITIM_KEYSTORE_PASSWORD gizli ayarı eksik. Settings > Secrets and variables > Actions bölümünden ekleyin."
+          if [ -z "$EGITIM_KEYSTORE_PASSWORD" ]; then
+            echo "::error::EGITIM_KEYSTORE_PASSWORD gizli ayarı eksik. GitHub → Settings → Secrets and variables → Actions bölümünden ekleyin."
             exit 1
           fi
-          openssl enc -d -aes-256-cbc -pbkdf2 -in ci/imza.keystore.enc \
-            -out "$RUNNER_TEMP/imza.keystore" -pass env:KEYSTORE_PASSWORD
+          python3 ci/android_ayarla.py .
+          grep -n "minSdk\|Desugaring\|keystore" android/app/build.gradle* || true
 
       - name: Paketleri güncelle
-        run: flutter pub upgrade --major-versions
+        # Bildirim paketi sabit ana sürümde tutulur (kod onun API'sine göre yazıldı).
+        run: flutter pub upgrade --major-versions firebase_core firebase_auth cloud_firestore flutter_lints
 
       - name: Testler
         run: flutter test
 
       - name: APK derle
         run: |
-          flutter build apk --release \
-            --build-name=3.0.${{ github.run_number }} \
-            --build-number=$((1000 + ${{ github.run_number }}))
+          flutter build apk --release --build-number=$SURUM --dart-define=BUILD_NUMBER=$SURUM
+          mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/egitim-takip.apk
 
-      # APK, Gradle'ın ürettiği geçici anahtar yerine bizim anahtarla yeniden
-      # imzalanır ve imza doğrulanır. Yanlış anahtar varsa yayınlanmaz.
-      - name: APK'yı imzala ve doğrula
-        run: |
-          BT=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)
-          "$BT/apksigner" sign --ks "$RUNNER_TEMP/imza.keystore" \
-            --ks-pass pass:android --key-pass pass:android --ks-key-alias androiddebugkey \
-            --out build/app/outputs/flutter-apk/egitim-takip.apk \
-            build/app/outputs/flutter-apk/app-release.apk
-          "$BT/apksigner" verify --print-certs build/app/outputs/flutter-apk/egitim-takip.apk | tee imza.txt
-          grep -q "CN=Egitim Takip" imza.txt || { echo "::error::APK doğru anahtarla imzalanmadı"; exit 1; }
-          rm -f "$RUNNER_TEMP/imza.keystore"
+      - name: İmza kontrolü (güncellemeler eskisinin üzerine kurulabilsin)
+        run: python3 ci/imza_kontrol.py build/app/outputs/flutter-apk/egitim-takip.apk ci/egitim-takip.p12
 
       - name: APK'yı yayınla
         uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2
         with:
-          tag_name: surum-${{ github.run_number }}
-          name: Eğitim Takip - Sürüm 3.0.${{ github.run_number }}
+          tag_name: surum-${{ env.SURUM }}
+          name: Eğitim Takip - Sürüm ${{ env.SURUM }}
+          make_latest: true
           body: |
-            Telefona kurmak için aşağıdaki **egitim-takip.apk** dosyasına dokunun.
+            ${{ github.event.head_commit.message }}
+
+            Telefona ilk kez kurmak için aşağıdaki egitim-takip.apk dosyasına dokunun. Uygulama kuruluysa güncelleme uygulamanın içinden gelir.
           files: build/app/outputs/flutter-apk/egitim-takip.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

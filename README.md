@@ -63,7 +63,7 @@ flutterfire configure --platforms=android
 firebase deploy --only firestore:rules --project <PROJE-KIMLIGI>
 ```
 Elle yapıyorsanız ayrıca `android/app/build.gradle(.kts)` içindeki
-`minSdk` değerini **23** yapın.
+`minSdk` değerini **24** yapın.
 
 > `flutterfire configure` sizden Firebase projenizi seçmenizi ister ve
 > `lib/firebase_options.dart` dosyasını otomatik oluşturur.
@@ -85,22 +85,6 @@ Elle yapıyorsanız ayrıca `android/app/build.gradle(.kts)` içindeki
   telefonda açıp "bilinmeyen kaynaklardan yüklemeye izin ver" deyip kurarlar.
 - İleride Google Play'e koymak isterseniz: `flutter build appbundle` ve
   Play Console geliştirici hesabı (tek seferlik ücretli) gerekir.
-
-## GitHub ile otomatik APK
-
-`main` dalına her gönderimde `.github/workflows/apk.yml` APK'yı derler ve
-**Releases** bölümüne `egitim-takip.apk` olarak koyar.
-
-- İmza anahtarı depoda şifreli durur: `ci/imza.keystore.enc`.
-- Şifresi GitHub'da **Settings → Secrets and variables → Actions** altında
-  `EGITIM_KEYSTORE_PASSWORD` adıyla kayıtlı olmalıdır. Yoksa derleme durur.
-- Şifreyi ve anahtarın şifresiz yedeğini güvenli bir yerde saklayın.
-  Kaybolursa yeni sürümler eskisinin üzerine kurulamaz.
-- Sürüm adı `2.0.<derleme no>` olarak otomatik verilir.
-
-> Kasım 2026'da imza anahtarı yenilendi. Bu tarihten önce kurulmuş
-> uygulamayı bir kez **kaldırıp** yeni APK'yı kurmak gerekir. Veriler
-> Firebase'de durduğu için hiçbir kayıt kaybolmaz; yeniden giriş yapmak yeterlidir.
 
 ## Kullanım akışı
 
@@ -132,7 +116,7 @@ lib/
       books_tab.dart            Kitap okuma
       test_books_tab.dart       Test kitapları (konu + sayfa işaretleme)
       tests_tab.dart            Test / deneme sonuçları
-firestore.rules                 Güvenlik kuralları (yalnızca Eğitim Takip)
+firestore.rules                 Güvenlik kuralları
 kurulum.sh                      Tek seferlik kurulum betiği
 ```
 
@@ -150,5 +134,5 @@ içindeki sekme listesine eklemek yeterli. Yeni alt koleksiyonu
 ## Sorun giderme
 - **"Firebase henüz yapılandırılmadı"**: `flutterfire configure` çalıştırılmamış.
 - **"Bu işlem için yetkiniz yok"**: Firestore kuralları yüklenmemiş ya da kişi o öğrenciye bağlı değil.
-- **Derleme hatası (minSdk)**: `android/app/build.gradle(.kts)` içinde `minSdk = 23`.
+- **Derleme hatası (minSdk)**: `android/app/build.gradle(.kts)` içinde `minSdk = 24`.
 - **Paket sürüm uyumsuzluğu**: `flutter pub upgrade --major-versions` sonra `flutter clean`.
