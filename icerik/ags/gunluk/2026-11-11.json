@@ -1,0 +1,306 @@
+{
+ "tarih": "2026-11-11",
+ "ad": "Günlük AGS + PDR ÖABT denemesi",
+ "sorular": [
+  {
+   "id": "g20261111-01",
+   "ders": "sozel",
+   "konu": "Sözcükte Anlam",
+   "soru": "Aşağıdaki cümlelerin hangisinde \"kök\" sözcüğü terim anlamıyla kullanılmıştır?",
+   "secenekler": [
+    "Bahçedeki ağacın kökleri duvarı çatlatmış.",
+    "Bu anlaşmazlığın kökü yıllar öncesine dayanıyor.",
+    "Kötü alışkanlıklar kökünden temizlenmeden başarı gelmez.",
+    "\"Gözlük\" sözcüğünün kökü \"göz\"dür.",
+    "Sevgi ve saygı, aile bağlarının köküdür."
+   ],
+   "cevap": 3,
+   "aciklama": "Dil bilgisinde kök, sözcüğün anlamlı en küçük parçasıdır; bu kullanım terim anlamıdır. İlk cümlede gerçek anlam, diğerlerinde \"temel, kaynak\" anlamında mecaz kullanım vardır."
+  },
+  {
+   "id": "g20261111-02",
+   "ders": "sozel",
+   "konu": "Paragrafta Anlam",
+   "soru": "\"Bir kenti yalnızca binaları ve yollarıyla tanımak, bir kitabı yalnızca kapağına bakarak tanımaya benzer. Kentin asıl kimliği; sabah fırının önünde sohbet eden komşularda, akşamüstü parkta top oynayan çocuklarda, pazarda tezgâh kuran üreticilerin seslerinde saklıdır. Bu nedenle bir kenti anlamak isteyen kişi, haritadan çok sokaklardaki insanlara bakmalıdır.\"\nBu parçada asıl anlatılmak istenen aşağıdakilerden hangisidir?",
+   "secenekler": [
+    "Kentlerde yapılaşma her geçen gün hızla artmaktadır.",
+    "Haritalar, bir kenti tanımada en güvenilir araçlardır.",
+    "Parklar, çocukların gelişimi için kentlerin vazgeçilmez alanlarıdır.",
+    "Bir kitabın kapağı, içeriği hakkında doğru fikir verir.",
+    "Bir kentin kimliği, orada yaşayan insanların gündelik hayatında ortaya çıkar."
+   ],
+   "cevap": 4,
+   "aciklama": "Yazar, kentin kimliğinin binalarda değil insanların gündelik yaşantısında saklı olduğunu vurgulamakta ve son cümlede bunu sonuca bağlamaktadır."
+  },
+  {
+   "id": "g20261111-03",
+   "ders": "sozel",
+   "konu": "Cümlede Anlam",
+   "soru": "Aşağıdaki cümlelerin hangisinde nesnel bir yargı vardır?",
+   "secenekler": [
+    "Bu romanın son bölümü okuru derinden etkiliyor.",
+    "Kitap, on iki bölüm ve 240 sayfadan oluşuyor.",
+    "Yazarın üslubu oldukça akıcı ve sade.",
+    "Kapak tasarımı, kitabın havasını çok güzel yansıtmış.",
+    "Bu eser, yazarın kaleme aldığı en başarılı kitap."
+   ],
+   "cevap": 1,
+   "aciklama": "Bölüm ve sayfa sayısı ölçülebilir, kanıtlanabilir bir bilgidir. Diğer cümleler kişisel beğeni ve değerlendirme içerdiği için özneldir."
+  },
+  {
+   "id": "g20261111-04",
+   "ders": "sayisal",
+   "konu": "Problemler",
+   "soru": "Bir ürünün fiyatı önce %20 artırılmış, ardından yeni fiyat üzerinden %20 indirim yapılmıştır. Ürünün son fiyatı 480 TL olduğuna göre ilk fiyatı kaç TL'dir?",
+   "secenekler": [
+    "500",
+    "480",
+    "520",
+    "460",
+    "540"
+   ],
+   "cevap": 0,
+   "aciklama": "İlk fiyat x olsun. x · 1,20 · 0,80 = 0,96x = 480 ⇒ x = 500 TL."
+  },
+  {
+   "id": "g20261111-05",
+   "ders": "sayisal",
+   "konu": "Temel İşlemler",
+   "soru": "Bir okulda üç farklı zil sırasıyla 12, 18 ve 30 dakikada bir çalmaktadır. Üç zil saat 09.00'da birlikte çaldığına göre ilk kez yeniden birlikte saat kaçta çalar?",
+   "secenekler": [
+    "10.30",
+    "11.00",
+    "12.00",
+    "13.00",
+    "15.00"
+   ],
+   "cevap": 2,
+   "aciklama": "EKOK(12, 18, 30): 12 = 2²·3, 18 = 2·3², 30 = 2·3·5 ⇒ 2²·3²·5 = 180 dakika = 3 saat. 09.00 + 3 saat = 12.00."
+  },
+  {
+   "id": "g20261111-06",
+   "ders": "sayisal",
+   "konu": "Geometri",
+   "soru": "Dik kenarlarının uzunlukları 6 cm ve 8 cm olan bir dik üçgende, hipotenüse ait yüksekliğin uzunluğu kaç cm'dir?",
+   "secenekler": [
+    "4",
+    "4,5",
+    "4,8",
+    "5",
+    "5,2"
+   ],
+   "cevap": 2,
+   "aciklama": "Hipotenüs = √(6² + 8²) = √100 = 10 cm. Alan = 6 · 8 / 2 = 24 cm². 10 · h / 2 = 24 ⇒ h = 4,8 cm."
+  },
+  {
+   "id": "g20261111-07",
+   "ders": "tarih",
+   "konu": "Tarih: Kurtuluş Savaşı Hazırlık",
+   "soru": "Amasya Genelgesi'nde yer alan \"Milletin istiklalini yine milletin azim ve kararı kurtaracaktır.\" ifadesi, aşağıdaki düşüncelerden hangisinin ilk kez açıkça dile getirildiğini gösterir?",
+   "secenekler": [
+    "Laiklik",
+    "Devletçilik",
+    "Osmanlı hükümetine bağlılık",
+    "Millî egemenlik",
+    "Manda ve himayenin kabulü"
+   ],
+   "cevap": 3,
+   "aciklama": "Kurtuluşun padişah ya da hükümetten değil milletin kendi iradesinden beklenmesi, millî egemenlik anlayışının ifadesidir."
+  },
+  {
+   "id": "g20261111-08",
+   "ders": "tarih",
+   "konu": "Tarih: Atatürk Dönemi Dış Politika",
+   "soru": "Lozan Barış Konferansı'nda çözüme kavuşturulamayıp ikili görüşmelere bırakılan, daha sonra Milletler Cemiyeti kararı ve 1926 Ankara Antlaşması ile İngiltere'nin mandası altındaki Irak'a bırakılan sorun hangisidir?",
+   "secenekler": [
+    "Hatay",
+    "Musul",
+    "Boğazlar",
+    "Nüfus mübadelesi",
+    "Kapitülasyonlar"
+   ],
+   "cevap": 1,
+   "aciklama": "Musul sorunu Lozan'da çözülemedi; Milletler Cemiyeti'nin kararı sonrasında 1926 Ankara Antlaşması ile Musul, Irak'a bırakıldı."
+  },
+  {
+   "id": "g20261111-09",
+   "ders": "cografya",
+   "konu": "Coğrafya: Madenler ve Enerji",
+   "soru": "Türkiye'nin dünya rezervlerinde ilk sırada yer aldığı ve cam, deterjan, seramik gibi pek çok sanayi kolunda kullanılan maden hangisidir?",
+   "secenekler": [
+    "Bor",
+    "Demir",
+    "Bakır",
+    "Boksit",
+    "Kurşun"
+   ],
+   "cevap": 0,
+   "aciklama": "Türkiye, dünya bor rezervlerinin büyük bölümüne sahiptir ve bu madende ilk sıradadır."
+  },
+  {
+   "id": "g20261111-10",
+   "ders": "cografya",
+   "konu": "Coğrafya: Yer Şekilleri",
+   "soru": "Aşağıdakilerden hangisi karstik (kalker gibi kolay çözünen kayaçlarla ilgili) bir yer şekli değildir?",
+   "secenekler": [
+    "Lapya",
+    "Dolin",
+    "Polye",
+    "Traverten",
+    "Moren"
+   ],
+   "cevap": 4,
+   "aciklama": "Lapya, dolin ve polye çözünme; traverten ise kireçli suların çökeltmesiyle oluşan karstik şekillerdir. Moren, buzulların taşıyıp biriktirdiği malzemedir."
+  },
+  {
+   "id": "g20261111-11",
+   "ders": "egitim",
+   "konu": "Gelişim Psikolojisi",
+   "soru": "Lise öğrencisi Ece, kısa aralıklarla farklı arkadaş gruplarına katılmakta, farklı giyim tarzları ve ilgi alanları denemekte, sık sık \"Ben kimim, ne olmak istiyorum?\" sorusunu kendine sormaktadır.\nErikson'un psikososyal gelişim kuramına göre Ece hangi dönemin özelliklerini göstermektedir?",
+   "secenekler": [
+    "Güvene karşı güvensizlik",
+    "Girişimciliğe karşı suçluluk",
+    "Çalışkanlığa karşı aşağılık duygusu",
+    "Yakınlığa karşı yalnızlık",
+    "Kimlik kazanmaya karşı rol karmaşası"
+   ],
+   "cevap": 4,
+   "aciklama": "Ergenlik dönemine denk gelen kimlik kazanmaya karşı rol karmaşası evresinde birey farklı rolleri deneyerek tutarlı bir kimlik oluşturmaya çalışır."
+  },
+  {
+   "id": "g20261111-12",
+   "ders": "egitim",
+   "konu": "Öğrenme Psikolojisi",
+   "soru": "Bir öğretmen, haftalık ödevlerini zamanında teslim eden öğrencilerin hafta sonu yapması gereken ek çalışma kâğıdını kaldıracağını açıklamıştır. Sonraki haftalarda ödev teslim oranı belirgin biçimde artmıştır.\nÖğretmenin kullandığı yöntem aşağıdakilerden hangisidir?",
+   "secenekler": [
+    "Olumlu pekiştirme",
+    "Olumsuz pekiştirme",
+    "Verici (birinci tür) ceza",
+    "Alıcı (ikinci tür) ceza",
+    "Sönme"
+   ],
+   "cevap": 1,
+   "aciklama": "Hoşa gitmeyen bir uyarıcı (ek çalışma kâğıdı) ortamdan çıkarılarak istenen davranışın sıklığı artırılmıştır; bu olumsuz pekiştirmedir."
+  },
+  {
+   "id": "g20261111-13",
+   "ders": "egitim",
+   "konu": "Öğretim Yöntem ve Teknikleri",
+   "soru": "Öğretmen derse başlarken konunun genel çerçevesini gösteren bir kavram haritası sunmuş, ardından temel kavramlardan ayrıntılara doğru ilerleyerek konuyu açıklamış ve yeni bilgileri öğrencilerin önceki bilgileriyle ilişkilendirmiştir.\nBu öğretmenin izlediği öğretim stratejisi hangisidir?",
+   "secenekler": [
+    "Buluş yoluyla öğretim",
+    "Araştırma-inceleme yoluyla öğretim",
+    "Sunuş yoluyla öğretim",
+    "Probleme dayalı öğrenme",
+    "Proje tabanlı öğrenme"
+   ],
+   "cevap": 2,
+   "aciklama": "Ön örgütleyici kullanma, genelden özele ilerleme ve anlamlı öğrenmeyi hedefleme Ausubel'in sunuş yoluyla öğretim stratejisinin özellikleridir."
+  },
+  {
+   "id": "g20261111-14",
+   "ders": "egitim",
+   "konu": "Ölçme ve Değerlendirme",
+   "soru": "Beş öğrencinin bir sınavdan aldığı puanlar şöyledir: 40, 50, 50, 60, 100\nBu puan dağılımıyla ilgili aşağıdakilerden hangisi doğrudur?",
+   "secenekler": [
+    "Aritmetik ortalama medyandan büyüktür.",
+    "Mod aritmetik ortalamaya eşittir.",
+    "Medyan 60'tır.",
+    "Dağılım sola (negatif) çarpıktır.",
+    "Ranj 50'dir."
+   ],
+   "cevap": 0,
+   "aciklama": "Ortalama = 300 / 5 = 60, medyan = 50, mod = 50, ranj = 100 − 40 = 60. Ortalama medyandan büyük olduğu için dağılım sağa (pozitif) çarpıktır."
+  },
+  {
+   "id": "g20261111-15",
+   "ders": "egitim",
+   "konu": "Türkiye Yüzyılı Maarif Modeli",
+   "soru": "Türkiye Yüzyılı Maarif Modeli'nde, öğrencilerin değerleri yalnızca bilmesini değil bu değerleri davranışa dönüştürmesini amaçlayan ve programların temel yapı taşlarından biri olan çerçeve aşağıdakilerden hangisidir?",
+   "secenekler": [
+    "Bilgi-Kavrama-Uygulama çerçevesi",
+    "Uyarıcı-Tepki-Pekiştireç çerçevesi",
+    "Girdi-Süreç-Çıktı çerçevesi",
+    "Erdem-Değer-Eylem çerçevesi",
+    "Planlama-Uygulama-Kontrol çerçevesi"
+   ],
+   "cevap": 3,
+   "aciklama": "Maarif Modeli'nde erdemlerin değerlere, değerlerin de eyleme dönüşmesini hedefleyen yapı Erdem-Değer-Eylem çerçevesidir."
+  },
+  {
+   "id": "g20261111-16",
+   "ders": "mevzuat",
+   "konu": "1739 Sayılı Milli Eğitim Temel Kanunu",
+   "soru": "Aşağıdakilerden hangisi 1739 sayılı Millî Eğitim Temel Kanunu'nda yer alan Türk millî eğitiminin genel ilkeleri arasında yer almaz?",
+   "secenekler": [
+    "Bilimsellik",
+    "Rekabetçilik",
+    "Karma eğitim",
+    "Her yerde eğitim",
+    "Planlılık"
+   ],
+   "cevap": 1,
+   "aciklama": "Bilimsellik, karma eğitim, her yerde eğitim ve planlılık Kanun'da sayılan genel ilkelerdendir; rekabetçilik bu ilkeler arasında yoktur."
+  },
+  {
+   "id": "g20261111-17",
+   "ders": "mevzuat",
+   "konu": "Anayasa'da Eğitim",
+   "soru": "Anayasa'ya göre eğitim ve öğretim, aşağıdakilerden hangisinin gözetim ve denetimi altında yapılır?",
+   "secenekler": [
+    "Yükseköğretim Kurulunun",
+    "Valiliklerin",
+    "Okul aile birliklerinin",
+    "Yerel yönetimlerin",
+    "Devletin"
+   ],
+   "cevap": 4,
+   "aciklama": "Anayasa'nın 42. maddesine göre eğitim ve öğretim, Devletin gözetim ve denetimi altında yapılır."
+  },
+  {
+   "id": "g20261111-18",
+   "ders": "pdr",
+   "konu": "Psikolojik Danışma Kuramları",
+   "soru": "Psikolojik danışman, babasıyla yaşadığı bitmemiş bir çatışmadan söz eden danışandan karşısındaki boş sandalyede babasının oturduğunu düşünerek ona söylemek istediklerini şimdi ve burada dile getirmesini istemiştir.\nBu uygulama en çok hangi kuramla ilişkilidir?",
+   "secenekler": [
+    "Bilişsel davranışçı terapi",
+    "Bireysel psikoloji (Adler)",
+    "Gestalt terapi",
+    "Gerçeklik terapisi",
+    "Psikanalitik kuram"
+   ],
+   "cevap": 2,
+   "aciklama": "Boş sandalye tekniği, bitmemiş işler ve \"şimdi ve burada\" vurgusu Gestalt terapinin temel özellikleridir."
+  },
+  {
+   "id": "g20261111-19",
+   "ders": "pdr",
+   "konu": "Mesleki Rehberlik ve Kariyer Kuramları",
+   "soru": "Super'in kariyer gelişim kuramına göre bireyin yaklaşık 15-24 yaşları arasında okul, iş deneyimi ve boş zaman etkinlikleri yoluyla kendini ve meslekleri tanıyıp seçeneklerini denediği evre hangisidir?",
+   "secenekler": [
+    "Büyüme",
+    "Kurulma (yerleşme)",
+    "Sürdürme",
+    "Araştırma (keşif)",
+    "Gerileme"
+   ],
+   "cevap": 3,
+   "aciklama": "Super'e göre 15-24 yaşları araştırma (keşif) evresidir; birey bu evrede meslek seçeneklerini dener ve daraltır."
+  },
+  {
+   "id": "g20261111-20",
+   "ders": "pdr",
+   "konu": "Bireyi Tanıma Teknikleri",
+   "soru": "Okul psikolojik danışmanı, sınıftaki öğrencilerden proje çalışmasında birlikte çalışmak istedikleri iki arkadaşının adını yazmalarını istemiştir. Elde edilen verilerle sınıftaki gruplaşmalar, en çok tercih edilen ve hiç tercih edilmeyen öğrenciler belirlenmiştir.\nKullanılan teknik aşağıdakilerden hangisidir?",
+   "secenekler": [
+    "Sosyometri",
+    "Otobiyografi",
+    "Anekdot kaydı",
+    "Görüşme",
+    "Vaka incelemesi"
+   ],
+   "cevap": 0,
+   "aciklama": "Grup üyelerinin belirli bir etkinlik için birbirlerini tercih etmesine dayanarak gruptaki sosyal ilişkileri ortaya koyan teknik sosyometridir."
+  }
+ ]
+}

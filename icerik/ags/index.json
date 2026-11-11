@@ -1,6 +1,11 @@
 {
  "denemeler": [
   {
+   "tarih": "2026-11-11",
+   "dosya": "gunluk/2026-11-11.json",
+   "soru": 20
+  },
+  {
    "tarih": "2026-11-10",
    "dosya": "gunluk/2026-11-10.json",
    "soru": 20
