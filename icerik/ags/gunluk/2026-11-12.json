@@ -1,0 +1,306 @@
+{
+ "tarih": "2026-11-12",
+ "ad": "Günlük AGS + PDR ÖABT denemesi",
+ "sorular": [
+  {
+   "id": "g20261112-01",
+   "ders": "sozel",
+   "konu": "Anlatımın Oluşması",
+   "soru": "(I) Kuşların göç yolları, yüzyıllardır büyük ölçüde aynı güzergâhları izler. (II) Bu yollar üzerindeki sulak alanlar, uzun yolculuk yapan kuşların dinlenip beslendiği duraklar işlevi görür. (III) Ancak kurutulan bataklıklar ve kirlenen göller, bu durakların sayısını her yıl biraz daha azaltmaktadır. (IV) Kuş gözlemciliği son yıllarda şehirlerde yaşayanlar arasında sevilen bir uğraş hâline gelmiştir. (V) Dinlenme alanı bulamayan kuşlar ise yolculuğu tamamlayacak gücü toplayamamaktadır.\nBu parçada numaralanmış cümlelerden hangisi düşüncenin akışını bozmaktadır?",
+   "secenekler": [
+    "I",
+    "II",
+    "III",
+    "IV",
+    "V"
+   ],
+   "cevap": 3,
+   "aciklama": "Parça, sulak alanların azalmasının göçmen kuşlara etkisini anlatır. IV. cümle ise kuş gözlemciliğinin popülerliğinden söz ederek bu akıştan kopar."
+  },
+  {
+   "id": "g20261112-02",
+   "ders": "sozel",
+   "konu": "Sözel Mantık",
+   "soru": "Kaan, Leyla, Mert, Nil ve Ozan; soldan sağa 1'den 5'e kadar numaralanmış ve yan yana dizilmiş beş sandalyeye birer kişi olacak şekilde oturmuştur.\n• Leyla 3 numaralı sandalyede oturmaktadır.\n• Ozan, Leyla'nın hemen sağında oturmaktadır.\n• Mert, Nil'in hemen solunda oturmaktadır.\nBuna göre aşağıdakilerden hangisi kesinlikle doğrudur?",
+   "secenekler": [
+    "Kaan, Ozan'ın hemen sağında oturmaktadır.",
+    "Nil, 1 numaralı sandalyede oturmaktadır.",
+    "Mert, Leyla'nın yanında oturmaktadır.",
+    "Ozan, sıranın en ucunda oturmaktadır.",
+    "Nil ile Ozan yan yana oturmaktadır."
+   ],
+   "cevap": 0,
+   "aciklama": "Leyla 3, Ozan 4 numarada. Boş kalan 1, 2 ve 5'ten yan yana olan yalnızca 1-2'dir; bu yüzden Mert 1, Nil 2, Kaan 5 numarada oturur. Kaan (5), Ozan'ın (4) hemen sağındadır."
+  },
+  {
+   "id": "g20261112-03",
+   "ders": "sozel",
+   "konu": "Paragrafta Anlam",
+   "soru": "Bir bahçıvan, fidanı diktiği gün meyve beklemez; toprağı hazırlar, düzenli olarak sular ve sabırla bekler. ---- Öğretmenin bir öğrenciye kazandırdığı alışkanlıklar da çoğu zaman yıllar sonra, öğrenci kendi yolunu çizerken görünür hâle gelir.\nBu parçada boş bırakılan yere aşağıdakilerden hangisi getirilmelidir?",
+   "secenekler": [
+    "Meyve ağaçları en çok ilkbaharda bakıma ihtiyaç duyar.",
+    "Bahçıvanlık, sabır isteyen zor bir meslektir.",
+    "Eğitimde de emeğin karşılığı çoğu zaman hemen alınmaz.",
+    "Öğrenciler, öğretmenlerinin sözlerini kısa sürede unutur.",
+    "Her fidan, aynı toprakta aynı hızla büyümez."
+   ],
+   "cevap": 2,
+   "aciklama": "Boşluktan önce bahçıvanın sabrı, sonra öğretmenin emeğinin geç görünen sonuçları anlatılıyor. İki düşünceyi bağlayan cümle, eğitimde emeğin karşılığının hemen alınmadığını söyleyen cümledir."
+  },
+  {
+   "id": "g20261112-04",
+   "ders": "sayisal",
+   "konu": "Sayısal Mantık",
+   "soru": "a ve b gerçek sayılar olmak üzere\na ◊ b = a · b − a + b\nişlemi tanımlanıyor.\nBuna göre (3 ◊ 2) ◊ 4 işleminin sonucu kaçtır?",
+   "secenekler": [
+    "11",
+    "13",
+    "15",
+    "17",
+    "19"
+   ],
+   "cevap": 4,
+   "aciklama": "3 ◊ 2 = 3·2 − 3 + 2 = 5. 5 ◊ 4 = 5·4 − 5 + 4 = 19."
+  },
+  {
+   "id": "g20261112-05",
+   "ders": "sayisal",
+   "konu": "Veri Yorumlama",
+   "soru": "Bir okulun kütüphanesinden bir ayda ödünç alınan kitap sayıları ve sınıf mevcutları şöyledir:\n9-A: 24 kitap, 24 öğrenci\n9-B: 30 kitap, 25 öğrenci\n9-C: 18 kitap, 20 öğrenci\n9-D: 28 kitap, 28 öğrenci\nBuna göre öğrenci başına düşen kitap sayısı en fazla olan sınıf hangisidir?",
+   "secenekler": [
+    "9-A",
+    "9-B",
+    "9-C",
+    "9-D",
+    "Tüm sınıflarda eşittir"
+   ],
+   "cevap": 1,
+   "aciklama": "Öğrenci başına kitap: 9-A 24/24 = 1; 9-B 30/25 = 1,2; 9-C 18/20 = 0,9; 9-D 28/28 = 1. En fazla 9-B'dir."
+  },
+  {
+   "id": "g20261112-06",
+   "ders": "sayisal",
+   "konu": "Problemler",
+   "soru": "Bir babanın bugünkü yaşı oğlunun yaşının 3 katıdır. 10 yıl sonra babanın yaşı, oğlunun o zamanki yaşının 2 katı olacaktır.\nBuna göre babanın bugünkü yaşı kaçtır?",
+   "secenekler": [
+    "27",
+    "30",
+    "33",
+    "36",
+    "40"
+   ],
+   "cevap": 1,
+   "aciklama": "Oğul x, baba 3x olsun. 3x + 10 = 2(x + 10) → 3x + 10 = 2x + 20 → x = 10. Baba 3 · 10 = 30 yaşındadır."
+  },
+  {
+   "id": "g20261112-07",
+   "ders": "tarih",
+   "konu": "Tarih: Osmanlı Kültür ve Medeniyeti",
+   "soru": "Osmanlı Devleti'nde, Hristiyan tebaanın çocuklarından seçilenlerin Türk-İslam kültürüyle yetiştirilerek kapıkulu ocaklarına ve devlet hizmetine alınmasını sağlayan uygulama aşağıdakilerden hangisidir?",
+   "secenekler": [
+    "İltizam",
+    "Tımar sistemi",
+    "Müsadere",
+    "Mukataa",
+    "Devşirme sistemi"
+   ],
+   "cevap": 4,
+   "aciklama": "Devşirme sistemiyle toplanan çocuklar Acemi Oğlanlar Ocağı ve Enderun gibi kurumlarda yetiştirilerek ordu ve devlet kadrolarına alınmıştır."
+  },
+  {
+   "id": "g20261112-08",
+   "ders": "tarih",
+   "konu": "Tarih: Kurtuluş Savaşı",
+   "soru": "TBMM, aşağıdaki zaferlerin hangisinden sonra Mustafa Kemal'e mareşal rütbesi ve gazi unvanı vermiştir?",
+   "secenekler": [
+    "I. İnönü Muharebesi",
+    "II. İnönü Muharebesi",
+    "Kütahya-Eskişehir Muharebeleri",
+    "Sakarya Meydan Muharebesi",
+    "Büyük Taarruz"
+   ],
+   "cevap": 3,
+   "aciklama": "Sakarya Meydan Muharebesi'nin kazanılmasının ardından TBMM, Başkomutan Mustafa Kemal'e mareşal rütbesi ve gazi unvanı vermiştir."
+  },
+  {
+   "id": "g20261112-09",
+   "ders": "cografya",
+   "konu": "Coğrafya: Nüfus ve Yerleşme",
+   "soru": "Doğu Anadolu Bölgesi'nin yüksek kesimlerinde nüfusun seyrek olmasında aşağıdaki doğal etmenlerden hangisi en etkilidir?",
+   "secenekler": [
+    "Yükseltinin fazla olması ve iklimin sert geçmesi",
+    "Kıyı şeridinin uzun olması",
+    "Deprem riskinin hiç bulunmaması",
+    "Akarsuların kısa ve debisinin düzenli olması",
+    "Yaz kuraklığının uzun sürmesi ve kışların ılık geçmesi"
+   ],
+   "cevap": 0,
+   "aciklama": "Yükseltinin fazla olması, kışların uzun ve çok soğuk geçmesine yol açar; tarım süresi kısalır ve yerleşme zorlaşır. Bu da nüfusun seyrek olmasının başlıca doğal nedenidir."
+  },
+  {
+   "id": "g20261112-10",
+   "ders": "cografya",
+   "konu": "Coğrafya: Tarım ve Hayvancılık",
+   "soru": "Türkiye'de çay tarımının büyük ölçüde Doğu Karadeniz kıyılarında yapılmasının temel nedeni aşağıdakilerden hangisidir?",
+   "secenekler": [
+    "Bu kıyılarda yaz kuraklığının belirgin olması",
+    "Arazinin geniş ve düz ovalardan oluşması",
+    "Her mevsim yağış alan ve kışları ılık geçen iklim koşulları",
+    "Karasal iklimin etkisiyle sıcaklık farkının fazla olması",
+    "Toprakların kalkerli ve geçirgen yapıda olması"
+   ],
+   "cevap": 2,
+   "aciklama": "Çay bitkisi bol ve her mevsime dağılmış yağış ile ılık kışlar ister. Bu koşullar Türkiye'de en belirgin biçimde Doğu Karadeniz kıyılarında görülür."
+  },
+  {
+   "id": "g20261112-11",
+   "ders": "egitim",
+   "konu": "Gelişim Psikolojisi",
+   "soru": "Bir öğretmen, kesirlerle ilgili bir problemi tek başına çözemeyen ancak ipuçları verildiğinde çözebilen öğrencisine önce ayrıntılı yönlendirmeler yapmış, öğrenci ilerledikçe desteğini azaltarak sonunda öğrencinin benzer problemleri yardımsız çözmesini sağlamıştır.\nÖğretmenin bu uygulaması aşağıdaki kavramlardan hangileriyle en iyi açıklanır?",
+   "secenekler": [
+    "Yakınsal gelişim alanı ve iskele kurma",
+    "Özümleme ve uyma",
+    "Benmerkezcilik ve animizm",
+    "Ahlaki gerçekçilik ve ahlaki görecelik",
+    "Korunum ve tersine çevrilebilirlik"
+   ],
+   "cevap": 0,
+   "aciklama": "Vygotsky'ye göre öğrencinin yardımla yapabildiği ile tek başına yapabildiği arasındaki alan yakınsal gelişim alanıdır; bu alanda verilip giderek azaltılan destek iskele kurmadır."
+  },
+  {
+   "id": "g20261112-12",
+   "ders": "egitim",
+   "konu": "Öğrenme Psikolojisi",
+   "soru": "Derse hazırlıklı gelen Deniz, öğretmeni tarafından sınıfın önünde övülmüştür. Bunu gören sınıftaki diğer öğrenciler de sonraki derslere hazırlıklı gelmeye başlamıştır.\nDiğer öğrencilerdeki bu davranış değişikliği aşağıdakilerden hangisiyle açıklanır?",
+   "secenekler": [
+    "Olumsuz pekiştirme",
+    "Dolaylı pekiştirme",
+    "Sönme",
+    "Uyarıcı genellemesi",
+    "Olumsuz ceza"
+   ],
+   "cevap": 1,
+   "aciklama": "Bandura'nın sosyal öğrenme kuramına göre başkasının pekiştirildiğini gözlemlemek, gözlemcinin aynı davranışı yapma olasılığını artırır; bu dolaylı pekiştirmedir."
+  },
+  {
+   "id": "g20261112-13",
+   "ders": "egitim",
+   "konu": "Ölçme ve Değerlendirme",
+   "soru": "Bir öğretmen, ünitenin her konusundan sonra not vermeden kısa testler uygulamakta, sonuçlara bakarak öğrencilerin hangi kazanımlarda eksik kaldığını belirlemekte ve bu eksikleri ünite bitmeden gidermeye çalışmaktadır.\nÖğretmenin yaptığı değerlendirme türü aşağıdakilerden hangisidir?",
+   "secenekler": [
+    "Düzey belirleyici değerlendirme",
+    "Sonuç (ürün) değerlendirme",
+    "Bağıl değerlendirme",
+    "Biçimlendirici değerlendirme",
+    "Akran değerlendirme"
+   ],
+   "cevap": 3,
+   "aciklama": "Öğretim süreci içinde, not amacı taşımadan öğrenme eksiklerini belirleyip gidermeye yönelik değerlendirme biçimlendirici (izleme) değerlendirmedir."
+  },
+  {
+   "id": "g20261112-14",
+   "ders": "egitim",
+   "konu": "Sınıf Yönetimi",
+   "soru": "Sınıf kurallarının belirlenmesi ve uygulanmasıyla ilgili aşağıdakilerden hangisi uygun değildir?",
+   "secenekler": [
+    "Kuralların öğrencilerle birlikte belirlenmesi",
+    "Kuralların az sayıda ve anlaşılır olması",
+    "Kuralların gerekçelerinin öğrencilere açıklanması",
+    "Kuralların tüm öğrencilere tutarlı biçimde uygulanması",
+    "Kuralların olabildiğince çok sayıda ve yasaklayıcı ifadelerle yazılması"
+   ],
+   "cevap": 4,
+   "aciklama": "Etkili sınıf kuralları az sayıda, açık ve olumlu ifadelerle yazılır. Çok sayıda ve yalnızca yasaklayıcı ifadelerle yazılan kurallar akılda tutulmaz ve sınıf iklimini olumsuz etkiler."
+  },
+  {
+   "id": "g20261112-15",
+   "ders": "egitim",
+   "konu": "Program Okuryazarlığı",
+   "soru": "Bir öğretmenin her derse zamanında gelmesi ve öğrencilerin sorularını sabırla dinlemesi, programda bu yönde bir kazanım yer almadığı hâlde öğrencilerin dakiklik ve saygı gibi davranışlar kazanmasını sağlamıştır.\nBu durum aşağıdaki program türlerinden hangisiyle açıklanır?",
+   "secenekler": [
+    "Resmî program",
+    "Ders dışı program",
+    "Örtük program",
+    "Sarmal program",
+    "Yok sayılan (sıfır) program"
+   ],
+   "cevap": 2,
+   "aciklama": "Yazılı programda yer almadığı hâlde okul ortamı ve öğretmen davranışları yoluyla kazanılan öğrenmeler örtük programın ürünüdür."
+  },
+  {
+   "id": "g20261112-16",
+   "ders": "mevzuat",
+   "konu": "Anayasa'da Eğitim",
+   "soru": "Anayasa'nın eğitim ve öğretim hakkını düzenleyen hükümlerine göre aşağıdakilerden hangisi doğrudur?",
+   "secenekler": [
+    "İlköğretim yalnızca erkek vatandaşlar için zorunludur.",
+    "Devlet okullarında ilköğretim, ailenin gelir düzeyine göre ücretlendirilir.",
+    "Devlet, durumları sebebiyle özel eğitime ihtiyacı olanları topluma yararlı kılacak tedbirleri alır.",
+    "Özel okullar devletin gözetim ve denetimi dışında tutulur.",
+    "Eğitim ve öğretim hakkı yalnızca belirli bir yaşa kadar tanınır."
+   ],
+   "cevap": 2,
+   "aciklama": "Anayasa'nın 42. maddesine göre Devlet, özel eğitime ihtiyacı olanları topluma yararlı kılacak tedbirleri alır. İlköğretim kız ve erkek bütün vatandaşlar için zorunlu ve devlet okullarında parasızdır; hiç kimse eğitim hakkından yoksun bırakılamaz."
+  },
+  {
+   "id": "g20261112-17",
+   "ders": "mevzuat",
+   "konu": "1739 Sayılı Milli Eğitim Temel Kanunu",
+   "soru": "Aşağıdakilerden hangisi 1739 sayılı Millî Eğitim Temel Kanunu'nda belirtilen Türk millî eğitiminin genel amaçlarıyla örtüşür?",
+   "secenekler": [
+    "Öğrencileri yalnızca yükseköğretime geçiş sınavlarına hazırlamak",
+    "Eğitim hizmetlerini belirli bir sosyal kesime yönelik düzenlemek",
+    "Bireylerin yalnızca zihinsel gelişimini esas almak",
+    "Eğitimi yalnızca örgün eğitim kurumlarıyla sınırlamak",
+    "Bireylerin ilgi, istidat ve kabiliyetlerini geliştirerek onları hayata hazırlamak ve bir meslek sahibi olmalarını sağlamak"
+   ],
+   "cevap": 4,
+   "aciklama": "Kanun'un genel amaçları arasında bireyleri ilgi, istidat ve kabiliyetlerini geliştirerek hayata hazırlamak ve kendilerini mutlu kılacak, topluma katkı sağlayacak bir meslek sahibi yapmak yer alır; diğer seçenekler bu amaçlarla çelişir."
+  },
+  {
+   "id": "g20261112-18",
+   "ders": "pdr",
+   "konu": "Grupla Psikolojik Danışma",
+   "soru": "Bir grupla psikolojik danışma sürecinin dördüncü oturumunda bazı üyeler liderin yeterliliğini sorgulamaya başlamış, bazıları ise kendini açmaktan kaçınarak sessiz kalmayı tercih etmiştir. Üyeler arasında zaman zaman gerginlikler ve kontrol mücadeleleri de gözlenmektedir.\nBu grup, gelişim aşamalarından hangisinde bulunmaktadır?",
+   "secenekler": [
+    "Geçiş aşaması",
+    "Başlangıç aşaması",
+    "Çalışma aşaması",
+    "Sonlandırma aşaması",
+    "İzleme aşaması"
+   ],
+   "cevap": 0,
+   "aciklama": "Direnç, kaygı, çatışma, kontrol mücadelesi ve liderin sorgulanması grubun geçiş aşamasına özgü özelliklerdir."
+  },
+  {
+   "id": "g20261112-19",
+   "ders": "pdr",
+   "konu": "Mesleki Etik",
+   "soru": "Bir okul psikolojik danışmanı, hem komşusunun çocuğu hem de kendi kızının yakın arkadaşı olan bir öğrenciyle bireysel psikolojik danışma sürecine başlamıştır.\nBu durum, en çok aşağıdaki etik konulardan hangisi açısından risk oluşturur?",
+   "secenekler": [
+    "Bilgilendirilmiş onam",
+    "Kayıt tutma",
+    "Mesleki yeterliliğin sınırları",
+    "Çoklu ilişkiler",
+    "Sevk (yönlendirme) süreci"
+   ],
+   "cevap": 3,
+   "aciklama": "Danışmanın danışanla danışmanlık dışında da sosyal ve ailevi ilişkisinin bulunması çoklu (ikili) ilişki oluşturur; bu durum nesnelliği ve danışanın yararını tehlikeye atabilir."
+  },
+  {
+   "id": "g20261112-20",
+   "ders": "pdr",
+   "konu": "Psikolojik Danışma Kuramları",
+   "soru": "Bir psikolojik danışman, danışanının ailedeki doğum sırasını ve erken anılarını inceleyerek onun yaşam stilini anlamaya çalışmakta; danışmada aşağılık duygularıyla baş etmesini ve sosyal ilgisini artırmasını hedeflemektedir.\nBu danışmanın benimsediği kuram aşağıdakilerden hangisidir?",
+   "secenekler": [
+    "Psikanalitik kuram",
+    "Bireysel (Adlerci) psikoloji",
+    "Gestalt terapi",
+    "Varoluşçu terapi",
+    "Davranışçı kuram"
+   ],
+   "cevap": 1,
+   "aciklama": "Doğum sırası, erken anılar, yaşam stili, aşağılık duygusu ve sosyal ilgi kavramları Adler'in bireysel psikolojisinin temel kavramlarıdır."
+  }
+ ]
+}
